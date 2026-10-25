@@ -1,0 +1,58 @@
+diff --git a/Natives/LauncherPreferences.m b/Natives/LauncherPreferences.m
+index aefdfe8..89ecfbf 100644
+--- a/Natives/LauncherPreferences.m
++++ b/Natives/LauncherPreferences.m
+@@ -99,14 +99,27 @@ UIEdgeInsets getDefaultSafeArea() {
+ #pragma mark Java runtime
+ 
+ NSString* getSelectedJavaHome(NSString* defaultJRETag, int minVersion) {
+-    NSDictionary *pref = getPrefObject(@"java.java_homes");
++    NSMutableDictionary *pref = [getPrefObject(@"java.java_homes") mutableCopy];
+     NSDictionary<NSString *, NSString *> *selected = pref[@"0"];
++
++    // [Calcite] Old installs keep a stale java_homes list that lacks newer bundled
++    // runtimes (e.g. Java 25), so always merge in whatever ships inside the app.
++    NSString *bundledDir = [NSString stringWithFormat:@"%@/java_runtimes", NSBundle.mainBundle.bundlePath];
++    for (NSString *name in [NSFileManager.defaultManager contentsOfDirectoryAtPath:bundledDir error:nil]) {
++        if (![name hasPrefix:@"java-"] || ![name hasSuffix:@"-openjdk"]) continue;
++        NSString *ver = [[name substringFromIndex:5] stringByReplacingOccurrencesOfString:@"-openjdk" withString:@""];
++        if (ver.intValue > 0 && !pref[ver]) pref[ver] = @"internal";
++    }
++
+     NSString *selectedVer = selected[defaultJRETag];
+-    if (minVersion > selectedVer.intValue) {
++    if (selectedVer.intValue < minVersion || selectedVer.intValue <= 0) {
++        // [Calcite] Pick the lowest runtime that satisfies the game. Never keep an
++        // older one: that silently launched Java 17 for Java 25 games and crashed.
++        selectedVer = nil;
+         NSArray *sortedVersions = [pref.allKeys valueForKeyPath:@"self.integerValue"];
+         sortedVersions = [sortedVersions sortedArrayUsingSelector:@selector(compare:)];
+         for (NSNumber *version in sortedVersions) {
+-            if (version.intValue >= minVersion) {
++            if (version.intValue >= MAX(minVersion, 1)) {
+                 selectedVer = version.stringValue;
+                 break;
+             }
+@@ -119,7 +132,7 @@ NSString* getSelectedJavaHome(NSString* defaultJRETag, int minVersion) {
+ 
+     id selectedDir = pref[selectedVer];
+     if ([selectedDir isEqualToString:@"internal"]) {
+-        selectedDir = [NSString stringWithFormat:@"%@/java_runtimes/java-%@-openjdk", NSBundle.mainBundle.bundlePath, selectedVer];
++        selectedDir = [NSString stringWithFormat:@"%@/java-%@-openjdk", bundledDir, selectedVer];
+     } else {
+         selectedDir = [NSString stringWithFormat:@"%s/java_runtimes/%@", getenv("AME_HOME"), selectedDir];
+     }
+diff --git a/Natives/PLPreferences.m b/Natives/PLPreferences.m
+index 872a280..823ed42 100644
+--- a/Natives/PLPreferences.m
++++ b/Natives/PLPreferences.m
+@@ -56,7 +56,8 @@
+                 }.mutableCopy,
+                 @"8": @"internal",
+                 @"17": @"internal",
+-                @"21": @"internal"
++                @"21": @"internal",
++                @"25": @"internal"
+             }.mutableCopy,
+             @"java_args": @"",
+             @"env_variables": @"",
