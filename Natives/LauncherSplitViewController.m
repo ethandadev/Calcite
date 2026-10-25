@@ -118,21 +118,8 @@ extern NSMutableDictionary *prefDict;
         @{@"symbol": @"gearshape.fill", @"title": @"Settings"},
     ]];
     self.tabBar.onSelect = ^(NSInteger i) { [weak showTab:i]; };
-    // Lives inside the content navigation controller's view (above its toolbar) so the split view
-    // can't cover it.
-    self.tabBar.translatesAutoresizingMaskIntoConstraints = NO;
-    [detail.view addSubview:self.tabBar];
-    [NSLayoutConstraint activateConstraints:@[
-        [self.tabBar.centerXAnchor constraintEqualToAnchor:detail.view.centerXAnchor],
-        [self.tabBar.bottomAnchor constraintEqualToAnchor:detail.toolbar.topAnchor constant:-8],
-        [self.tabBar.heightAnchor constraintEqualToConstant:62],
-        [self.tabBar.widthAnchor constraintLessThanOrEqualToConstant:420],
-        [self.tabBar.leadingAnchor constraintGreaterThanOrEqualToAnchor:detail.view.leadingAnchor constant:16],
-        [self.tabBar.trailingAnchor constraintLessThanOrEqualToAnchor:detail.view.trailingAnchor constant:-16],
-    ]];
-    NSLayoutConstraint *wide = [self.tabBar.widthAnchor constraintEqualToConstant:420];
-    wide.priority = UILayoutPriorityDefaultHigh;
-    wide.active = YES;
+    // The bar is attached to the window once the UI is on screen (see viewDidAppear); the split view's
+    // own column containers would otherwise cover it, and the toolbar isn't in the hierarchy yet here.
 
     detail.delegate = self;
     detail.additionalSafeAreaInsets = UIEdgeInsetsMake(0, 0, 76, 0);
@@ -141,6 +128,8 @@ extern NSMutableDictionary *prefDict;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self layoutTabBar];
+    dispatch_async(dispatch_get_main_queue(), ^{ [self layoutTabBar]; });
     [CalciteOnboardingViewController presentFrom:self force:NO];
 }
 
@@ -170,9 +159,35 @@ extern NSMutableDictionary *prefDict;
     }
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    // Don't leave the bar floating over the game or full-screen covers.
+    [self.tabBar removeFromSuperview];
+}
+
+- (void)layoutTabBar {
+    UIWindow *window = self.view.window;
+    if (!window || !self.tabBar) return;
+    if (self.tabBar.superview != window) [window addSubview:self.tabBar];
+    CGFloat w = MIN(window.bounds.size.width - 32, 420), h = 62;
+    UIToolbar *tb = [self contentNav].toolbar;
+    CGFloat y;
+    if (tb.window) {
+        CGRect r = [tb convertRect:tb.bounds toView:window];
+        y = r.origin.y - h - 10;
+    } else {
+        y = window.bounds.size.height - window.safeAreaInsets.bottom - 49 - h - 10;
+    }
+    CGAffineTransform t = self.tabBar.transform;
+    self.tabBar.transform = CGAffineTransformIdentity;
+    self.tabBar.frame = CGRectMake((window.bounds.size.width - w) / 2, y, w, h);
+    self.tabBar.transform = t;
+    [window bringSubviewToFront:self.tabBar];
+}
+
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    [[self contentNav].view bringSubviewToFront:self.tabBar];
+    [self layoutTabBar];
 }
 
 - (void)showTabIndex:(NSNumber *)index {
