@@ -13,6 +13,13 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.8.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Clone profiles with their own game folder (swipe right on a profile).",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.8.0/Calcite.ipa",
+          "size": 193672691
+        },
+        {
           "version": "0.7.1",
           "date": "2026-10-25",
           "localizedDescription": "Installed mods manager: enable, disable, delete.",
