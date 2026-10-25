@@ -222,6 +222,11 @@
 "preference.detail.mouse_scale" = "Change the size of the virtual mouse";
 "preference.title.mouse_speed" = "Mouse speed (%)";
 "preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
+"preference.title.builtin_jit" = "Built-in JIT (beta)";
+"preference.detail.builtin_jit" = "Enable JIT without StikDebug, using Calcite's own helper. Needs an imported pairing file and LocalDevVPN connected. If it fails, Calcite shows why instead of silently switching.";
+"preference.title.jit_import_pairing" = "Import pairing file";
+"preference.title.jit_prepare" = "Prepare JIT";
+"preference.title.jit_reset_ddi" = "Reset Developer Disk Image";
 "preference.title.compact_keyboard" = "Compact keyboard";
 "preference.detail.compact_keyboard" = "Use Calcite's small keyboard that only covers the bottom of the screen instead of the full iOS keyboard";
 "preference.title.virtmouse_enable" = "Virtual mouse";
