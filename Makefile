@@ -339,7 +339,33 @@ assets:
 	fi
 	echo '[Amethyst v$(VERSION)] assets - end'
 
-payload: native dep_mg java jre assets
+# Built-in JIT: StikJIT.framework (built by CI from StikDebug/StikJIT) plus Calcite's helper extension.
+STIKJIT_FW  ?= $(SOURCEDIR)/depends/StikJIT.framework
+HELPER_DIR  := $(SOURCEDIR)/Natives/jithelper
+
+helper: native
+	echo '[Calcite] helper - start'
+	if [ ! -d '$(STIKJIT_FW)' ]; then \
+		echo 'StikJIT.framework not found at $(STIKJIT_FW), skipping the built-in JIT helper'; \
+	else \
+		APP=$(WORKINGDIR)/AngelAuraAmethyst.app; \
+		APPEX=$$APP/PlugIns/CalciteJITHelper.appex; \
+		mkdir -p $$APPEX $$APP/Frameworks; \
+		rm -rf $$APP/Frameworks/StikJIT.framework; \
+		cp -R '$(STIKJIT_FW)' $$APP/Frameworks/; \
+		xcrun --sdk iphoneos swiftc -target arm64-apple-ios17.4 -sdk '$(SDKPATH)' \
+			-module-name CalciteJITHelper -O -application-extension \
+			-F "$$(dirname '$(STIKJIT_FW)')" \
+			$(HELPER_DIR)/CalciteJITHelper.swift -framework StikJIT \
+			-Xlinker -rpath -Xlinker @executable_path/../../Frameworks \
+			-Xlinker -e -Xlinker _NSExtensionMain \
+			-o $$APPEX/CalciteJITHelper || exit 1; \
+		cp $(HELPER_DIR)/Info.plist $$APPEX/Info.plist || exit 1; \
+		ldid -S$(SOURCEDIR)/entitlements.helper.xml $$APPEX/CalciteJITHelper || exit 1; \
+	fi
+	echo '[Calcite] helper - end'
+
+payload: native dep_mg java jre assets helper
 	echo '[Amethyst v$(VERSION)] payload - start'
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs)
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo)
