@@ -1,3 +1,4 @@
+#import "CalciteSDL.h"
 #import <AVFoundation/AVFoundation.h>
 #import <GameController/GameController.h>
 #import <objc/runtime.h>
@@ -432,6 +433,7 @@ static GameSurfaceView* pojavWindow;
 }
 
 - (void)launchMinecraft {
+    CalciteSDL_startAdopter();
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         int minVersion = [self.metadata[@"javaVersion"][@"majorVersion"] intValue];
         if (minVersion == 0) {
