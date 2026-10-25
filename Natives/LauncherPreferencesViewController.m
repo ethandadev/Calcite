@@ -6,6 +6,7 @@
 #import "LauncherMenuViewController.h"
 #import "LauncherPreferences.h"
 #import "LauncherPreferencesViewController.h"
+#import "CalciteBuiltInJIT.h"
 #import "LauncherPrefContCfgViewController.h"
 #import "LauncherPrefManageJREViewController.h"
 #import "UIKit+hook.h"
@@ -106,6 +107,36 @@
               @"icon": @"sidebar.leading",
               @"type": self.typeSwitch,
               @"enableCondition": whenNotInGame
+            },
+            @{@"key": @"builtin_jit",
+              @"hasDetail": @YES,
+              @"icon": @"bolt.circle",
+              @"type": self.typeSwitch,
+              @"enableCondition": whenNotInGame
+            },
+            @{@"key": @"jit_import_pairing",
+              @"icon": @"square.and.arrow.down",
+              @"type": self.typeButton,
+              @"enableCondition": whenNotInGame,
+              @"action": ^void(){
+                  [CalciteBuiltInJIT importPairingFileFrom:self];
+              }
+            },
+            @{@"key": @"jit_prepare",
+              @"icon": @"checkmark.seal",
+              @"type": self.typeButton,
+              @"enableCondition": whenNotInGame,
+              @"action": ^void(){
+                  [CalciteBuiltInJIT prepareFrom:self];
+              }
+            },
+            @{@"key": @"jit_reset_ddi",
+              @"icon": @"arrow.counterclockwise",
+              @"type": self.typeButton,
+              @"enableCondition": whenNotInGame,
+              @"action": ^void(){
+                  [CalciteBuiltInJIT resetDDIFrom:self];
+              }
             },
             @{@"key": @"reset_warnings",
               @"icon": @"exclamationmark.triangle",

@@ -7,6 +7,7 @@
 #import "JavaGUIViewController.h"
 #import "LauncherMenuViewController.h"
 #import "LauncherNavigationController.h"
+#import "CalciteBuiltInJIT.h"
 #import "LauncherPreferences.h"
 #import "MinecraftResourceDownloadTask.h"
 #import "MinecraftResourceUtils.h"
@@ -426,6 +427,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     localVersionList = remoteVersionList = nil;
     BOOL hasTrollStoreJIT = getEntitlementValue(@"jb.pmap_cs.custom_trust");
     BOOL isLiveContainer = getenv("LC_HOME_PATH") != NULL;
+    BOOL useBuiltinJIT = NO;
 
     if (isJITEnabled(false)) {
         [ALTServerManager.sharedManager stopDiscovering];
@@ -439,6 +441,9 @@ static void *ProgressObserverContext = &ProgressObserverContext;
         NSLog(@"Debug option skipped waiting for JIT. Java might not work.");
         handler();
         return;
+    } else if (getPrefBool(@"general.builtin_jit")) {
+        useBuiltinJIT = YES;
+        // Started below, once the waiting alert is up
     } else if (@available(iOS 17.4, *)) {
         NSString *scriptDataString = @"";
         if(DeviceHasJITFlags(JIT_FLAG_FORCE_MIRRORED | JIT_FLAG_HAS_TXM)) {
@@ -464,8 +469,20 @@ static void *ProgressObserverContext = &ProgressObserverContext;
 */
     [self presentViewController:alert animated:YES completion:nil];
 
+    __block volatile BOOL builtinFailed = NO;
+    if (useBuiltinJIT) {
+        [CalciteBuiltInJIT enableForCurrentProcess:^(BOOL success, NSString *message) {
+            if (success) return; // the wait loop below notices JIT turning on
+            builtinFailed = YES;
+            [alert dismissViewControllerAnimated:YES completion:^{
+                showDialog(@"Built-in JIT couldn't start", message);
+            }];
+        }];
+    }
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         while (!isJITEnabled(false)) {
+            if (builtinFailed) return;
             // Perform check for every 200ms
             usleep(1000*200);
         }
