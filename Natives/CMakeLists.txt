@@ -183,6 +183,7 @@ add_executable(AngelAuraAmethyst
   CalciteWorldBackup.m
   TrackedTextField.m
   egl_bridge.m
+  CalciteSDL.m
   input_bridge_v3.m
   ios_uikit_bridge.m
   utils.m
