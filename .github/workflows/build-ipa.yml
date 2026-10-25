@@ -59,6 +59,13 @@ jobs:
         run: |
           export BOOTJDK="$JAVA_HOME/bin"
           scripts/build-java341.sh
+      - name: Stamp app version from the release tag
+        run: |
+          TAG="${{ inputs.release }}"; [ -z "$TAG" ] && [ "${GITHUB_REF_TYPE}" = tag ] && TAG="${GITHUB_REF_NAME}"
+          if [ -n "$TAG" ]; then
+            V="${TAG#v}"
+            /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $V" -c "Set :CFBundleVersion $V" Natives/Info.plist
+          fi
       - name: Build
         run: |
           export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
