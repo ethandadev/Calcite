@@ -116,6 +116,12 @@
 
     [self.options addObject:
      (id)[LauncherMenuCustomItem
+          title:@"Restore World"
+          imageName:@"clock.arrow.circlepath" action:^{
+        [CalciteWorldBackup presentRestoreFrom:self];
+    }]];
+    [self.options addObject:
+     (id)[LauncherMenuCustomItem
           title:@"Health Check"
           imageName:@"checkmark.shield.fill" action:^{
         [CalciteHealthCheck presentFrom:self];
