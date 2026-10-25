@@ -137,7 +137,7 @@ static const NSInteger kKeepPerWorld = 3;
     NSString *tmp = [NSTemporaryDirectory() stringByAppendingPathComponent:NSUUID.UUID.UUIDString];
     NSError *err = nil;
     UZKArchive *archive = [[UZKArchive alloc] initWithPath:zip error:&err];
-    if (!err) [archive extractFilesTo:tmp overWrite:YES error:&err];
+    if (!err) [archive extractFilesTo:tmp overwrite:YES error:&err];
     NSString *extracted = [[fm contentsOfDirectoryAtPath:tmp error:nil] firstObject];
     if (err || !extracted) {
         showDialog(@"Restore failed", err.localizedDescription ?: @"The backup is empty or damaged.");
