@@ -7,8 +7,10 @@ for the game process.
 
 ## One-time setup
 1. Install **LocalDevVPN** and connect it (the tunnel the helper talks through).
-2. In StikDebug's pairing guide, create the RP pairing file for your device.
-3. In Calcite: Settings > General > **Import pairing file**, pick that file.
+2. Get a pairing file. Either:
+   - **iOS 27:** in Calcite, Settings > General > **Pair on this iPhone**. Then open Settings > Privacy & Security >
+     Developer Mode on the phone, choose "Calcite", and type the code Calcite shows. Allow Local Network if asked.
+   - **Any version:** create one with StikDebug's pairing guide and use **Import pairing file**.
 4. Tap **Prepare JIT** (mounts the Developer Disk Image; needs the VPN on).
 5. Turn on **Built-in JIT (beta)**.
 
@@ -19,4 +21,4 @@ Use **Reset DDI** if the disk image gets into a bad state.
 ## Limits
 - iOS 17.4+ and a build with the helper extension (the official IPA has it).
 - Not available inside LiveContainer.
-- On-device pairing generation for iOS 27 is not implemented yet; import a pairing file instead.
+- On-device pairing needs iOS 27's device-initiated pairing. It is untested on hardware; if it misbehaves, import a pairing file.
