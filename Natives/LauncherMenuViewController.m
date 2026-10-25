@@ -7,6 +7,7 @@
 #import "CalciteCrashExplainer.h"
 #import "CalcitePerformancePack.h"
 #import "CalciteModBrowser.h"
+#import "CalciteSkinManager.h"
 #import "CalciteWorldBackup.h"
 #import "LauncherNewsViewController.h"
 #import "LauncherPreferences.h"
@@ -103,6 +104,13 @@
           title:@"Mod Browser"
           imageName:@"puzzlepiece.extension.fill" action:^{
         [CalciteModBrowser presentFrom:self];
+    }]];
+
+    [self.options addObject:
+     (id)[LauncherMenuCustomItem
+          title:@"Skin Manager"
+          imageName:@"person.crop.square.fill" action:^{
+        [CalciteSkinManager presentFrom:self];
     }]];
 
     // TODO: Finish log-uploading service integration
