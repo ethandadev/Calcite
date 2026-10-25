@@ -1,0 +1,26 @@
+{
+  "name": "Calcite",
+  "identifier": "dev.ethandadev.calcite.source",
+  "sourceURL": "https://raw.githubusercontent.com/ethandadev/Calcite/main/source.json",
+  "apps": [
+    {
+      "name": "Calcite",
+      "bundleIdentifier": "dev.ethandadev.calcite",
+      "developerName": "ethandadev",
+      "subtitle": "Minecraft Java for iPhone and iPad",
+      "localizedDescription": "A modern Minecraft: Java Edition launcher for iOS, built on the Amethyst engine with Java 25 support.",
+      "iconURL": "https://raw.githubusercontent.com/ethandadev/Calcite/main/docs/icon.png",
+      "tintColor": "2BB3A3",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "date": "2026-10-25",
+          "localizedDescription": "First Calcite build: Java 25 fix for Minecraft 26.x.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/latest/download/Calcite.ipa",
+          "size": 191000000
+        }
+      ]
+    }
+  ],
+  "news": []
+}

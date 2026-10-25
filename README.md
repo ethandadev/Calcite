@@ -20,3 +20,8 @@ MobileGlues stays a git submodule (large, unmodified); the small libraries are v
 Changes so far:
 - Java selection fix for Minecraft 26.x: Java 25 was missing from the default runtime list and the selector silently
   kept Java 17. It now merges bundled runtimes and never picks an older Java.
+
+## Install
+1. Download `Calcite.ipa` from the latest [Release](../../releases/latest) and open it in SideStore.
+2. Or add `https://raw.githubusercontent.com/ethandadev/Calcite/main/source.json` as a SideStore source for updates.
+3. Enable JIT with StikDebug (built-in JIT is in progress).
