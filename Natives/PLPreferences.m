@@ -43,6 +43,7 @@
             @"mouse_scale": @(100),
             @"mouse_speed": @(100),
             @"virtmouse_enable": @NO,
+            @"compact_keyboard": @YES,
             @"gyroscope_enable": @NO,
             @"gyroscope_invert_x_axis": @NO,
             @"gyroscope_sensitivity": @(100)
