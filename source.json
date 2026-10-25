@@ -13,6 +13,20 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.7.1",
+          "date": "2026-10-25",
+          "localizedDescription": "Installed mods manager: enable, disable, delete.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.7.1/Calcite.ipa",
+          "size": 193669375
+        },
+        {
+          "version": "0.7.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Mod Browser (Modrinth).",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.7.0/Calcite.ipa",
+          "size": 193667723
+        },
+        {
           "version": "0.6.0",
           "date": "2026-10-25",
           "localizedDescription": "Built-in JIT (beta): no StikDebug app needed once paired.",
