@@ -13,6 +13,13 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.12.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Five more control layouts and Restore World.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.12.0/Calcite.ipa",
+          "size": 196152582
+        },
+        {
           "version": "0.11.0",
           "date": "2026-10-25",
           "localizedDescription": "Health Check screen.",
