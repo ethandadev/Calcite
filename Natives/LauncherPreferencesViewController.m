@@ -284,6 +284,11 @@
                 @"min": @(25),
                 @"max": @(300)
             },
+            @{@"key": @"compact_keyboard",
+                @"hasDetail": @YES,
+                @"icon": @"keyboard",
+                @"type": self.typeSwitch
+            },
             @{@"key": @"virtmouse_enable",
                 @"hasDetail": @YES,
                 @"icon": @"cursorarrow.rays",

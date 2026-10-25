@@ -18,6 +18,7 @@
 #import "PLProfiles.h"
 #import "SurfaceViewController.h"
 #import "TrackedTextField.h"
+#import "CalciteKeyboardView.h"
 #import "UIKit+hook.h"
 #import "ios_uikit_bridge.h"
 
@@ -200,6 +201,11 @@ static GameSurfaceView* pojavWindow;
     self.inputTextField.sendKey = ^(int key, int scancode, int action, int mods) {
         CallbackBridge_nativeSendKey(key, scancode, action, mods);
     };
+
+    if (getPrefBool(@"control.compact_keyboard")) {
+        // Calcite: small keyboard instead of the huge system one
+        self.inputTextField.inputView = [[CalciteKeyboardView alloc] initWithTarget:self.inputTextField];
+    }
 
     self.swipeableButtons = [[NSMutableArray alloc] init];
 
