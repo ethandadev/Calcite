@@ -13,6 +13,20 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.4.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Automatic world backups.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.4.0/Calcite.ipa",
+          "size": 191819612
+        },
+        {
+          "version": "0.3.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Crash explainer.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.3.0/Calcite.ipa",
+          "size": 191817910
+        },
+        {
           "version": "0.2.0",
           "date": "2026-10-25",
           "localizedDescription": "Compact keyboard and four control layouts.",
@@ -24,7 +38,7 @@
           "date": "2026-10-25",
           "localizedDescription": "First Calcite build: Java 25 fix for Minecraft 26.x.",
           "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.1.0/Calcite.ipa",
-          "size": 191000000
+          "size": 191807533
         }
       ]
     }
