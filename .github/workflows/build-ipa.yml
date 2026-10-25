@@ -9,8 +9,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare engine (Amethyst-iOS + Calcite patches)
-        run: scripts/prepare-engine.sh
+        with:
+          submodules: recursive
       - name: JDK 8 (boot JDK for the Java app build)
         uses: actions/setup-java@v4
         with:
@@ -19,7 +19,6 @@ jobs:
       - name: Tools
         run: brew install make ldid cmake ninja
       - name: Build
-        working-directory: Engine
         run: |
           export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
           export BOOTJDK="$JAVA_HOME/bin"
@@ -27,7 +26,7 @@ jobs:
       - name: Collect IPA
         run: |
           mkdir -p out
-          cp Engine/artifacts/org.angelauramc.amethyst-*-ios.ipa out/Calcite.ipa
+          cp artifacts/org.angelauramc.amethyst-*-ios.ipa out/Calcite.ipa
       - uses: actions/upload-artifact@v4
         with:
           name: Calcite-ipa
