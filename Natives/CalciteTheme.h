@@ -12,6 +12,9 @@
 + (UIFont *)roundedFont:(CGFloat)size weight:(UIFontWeight)weight;
 + (void)styleSidebarCell:(UITableViewCell *)cell;
 + (void)styleCardCell:(UITableViewCell *)cell;
++ (void)revealCell:(UITableViewCell *)cell atRow:(NSInteger)row;
++ (void)riseIn:(NSArray<UIView *> *)views;
++ (void)animateHero:(UIView *)hero gradient:(CAGradientLayer *)grad play:(UIView *)play;
 /// A tappable rounded card with a symbol, title and subtitle.
 + (UIControl *)actionCardWithSymbol:(NSString *)symbol title:(NSString *)title subtitle:(NSString *)subtitle;
 @end

@@ -188,6 +188,10 @@ typedef NS_ENUM(NSUInteger, LauncherProfilesTableSection) {
     [cell.imageView setImageWithURL:[NSURL URLWithString:profile[@"icon"]] placeholderImage:fallbackImage];
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    [CalciteTheme revealCell:cell atRow:indexPath.row];
+}
+
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *cellID = indexPath.section == kInstances ? @"InstanceCell" : @"ProfileCell";

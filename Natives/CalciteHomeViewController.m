@@ -191,6 +191,23 @@
     [self refresh];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    UIView *hero = [self.view viewWithTag:7];
+    CAGradientLayer *grad = nil;
+    for (CALayer *l in hero.layer.sublayers) if ([l isKindOfClass:CAGradientLayer.class]) grad = (CAGradientLayer *)l;
+    UIView *play = nil;
+    for (UIView *v in hero.subviews) for (UIView *w in v.subviews) if ([w isKindOfClass:UIButton.class]) play = w;
+    if (grad && play) [CalciteTheme animateHero:hero gradient:grad play:play];
+    static BOOL first = YES;
+    if (first) {
+        first = NO;
+        UIStackView *root = nil;
+        for (UIView *v in self.view.subviews) for (UIView *w in v.subviews) if ([w isKindOfClass:UIStackView.class]) root = (UIStackView *)w;
+        if (root) [CalciteTheme riseIn:root.arrangedSubviews];
+    }
+}
+
 - (void)refresh {
     NSDictionary *profile = PLProfiles.current.selectedProfile;
     NSString *name = PLProfiles.current.selectedProfileName ?: @"Minecraft";

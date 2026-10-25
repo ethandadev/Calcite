@@ -1,3 +1,4 @@
+#import <objc/runtime.h>
 #import "CalciteTheme.h"
 
 @implementation CalciteTheme
@@ -147,13 +148,63 @@
         [stack.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:14],
         [stack.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-14],
     ]];
-    // press feedback
-    [card addAction:[UIAction actionWithHandler:^(UIAction *a) { card.alpha = 0.6; }] forControlEvents:UIControlEventTouchDown];
+    // press feedback: springy squish + light haptic
+    [card addAction:[UIAction actionWithHandler:^(UIAction *a) {
+        [[UIImpactFeedbackGenerator.alloc initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
+        [UIView animateWithDuration:0.25 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
+                            options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                         animations:^{ card.transform = CGAffineTransformMakeScale(0.95, 0.95); card.alpha = 0.85; } completion:nil];
+    }] forControlEvents:UIControlEventTouchDown];
     UIAction *restore = [UIAction actionWithHandler:^(UIAction *a) {
-        [UIView animateWithDuration:0.2 animations:^{ card.alpha = 1; }];
+        [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.55 initialSpringVelocity:0.8
+                            options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                         animations:^{ card.transform = CGAffineTransformIdentity; card.alpha = 1; } completion:nil];
     }];
-    [card addAction:restore forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
+    [card addAction:restore forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel | UIControlEventTouchDragExit];
     return card;
+}
+
+// Rows slide and fade in the first time they appear, staggered by position.
++ (void)revealCell:(UITableViewCell *)cell atRow:(NSInteger)row {
+    static const void *key = &key;
+    if (objc_getAssociatedObject(cell, key)) return;
+    objc_setAssociatedObject(cell, key, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (UIAccessibilityIsReduceMotionEnabled()) return;
+    cell.contentView.alpha = 0;
+    cell.contentView.transform = CGAffineTransformMakeTranslation(-14, 0);
+    [UIView animateWithDuration:0.55 delay:MIN(row, 12) * 0.04 usingSpringWithDamping:0.82 initialSpringVelocity:0.2
+                        options:UIViewAnimationOptionAllowUserInteraction
+                     animations:^{ cell.contentView.alpha = 1; cell.contentView.transform = CGAffineTransformIdentity; }
+                     completion:nil];
+}
+
+// Staggered rise-in for a list of views (used by Home).
++ (void)riseIn:(NSArray<UIView *> *)views {
+    if (UIAccessibilityIsReduceMotionEnabled()) return;
+    [views enumerateObjectsUsingBlock:^(UIView *v, NSUInteger i, BOOL *stop) {
+        v.alpha = 0;
+        v.transform = CGAffineTransformMakeTranslation(0, 24);
+        [UIView animateWithDuration:0.7 delay:0.06 * i usingSpringWithDamping:0.8 initialSpringVelocity:0.2
+                            options:UIViewAnimationOptionAllowUserInteraction
+                         animations:^{ v.alpha = 1; v.transform = CGAffineTransformIdentity; }
+                         completion:nil];
+    }];
+}
+
+// Slow living gradient + breathing glow for the hero card.
++ (void)animateHero:(UIView *)hero gradient:(CAGradientLayer *)grad play:(UIView *)play {
+    if (UIAccessibilityIsReduceMotionEnabled()) return;
+    CABasicAnimation *shift = [CABasicAnimation animationWithKeyPath:@"endPoint"];
+    shift.fromValue = [NSValue valueWithCGPoint:CGPointMake(1, 1)];
+    shift.toValue = [NSValue valueWithCGPoint:CGPointMake(0.6, 1.4)];
+    shift.duration = 5; shift.autoreverses = YES; shift.repeatCount = HUGE_VALF;
+    shift.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    [grad addAnimation:shift forKey:@"shift"];
+    CABasicAnimation *pulse = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    pulse.fromValue = @1.0; pulse.toValue = @1.045;
+    pulse.duration = 1.4; pulse.autoreverses = YES; pulse.repeatCount = HUGE_VALF;
+    pulse.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    [play.layer addAnimation:pulse forKey:@"pulse"];
 }
 
 @end

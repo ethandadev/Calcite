@@ -275,8 +275,13 @@
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    [CalciteTheme revealCell:cell atRow:indexPath.row];
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    [[UISelectionFeedbackGenerator new] selectionChanged];
     LauncherMenuCustomItem *selected = self.options[indexPath.row];
     
     if (selected.action != nil) {
