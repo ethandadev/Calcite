@@ -13,6 +13,20 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.6.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Built-in JIT (beta): no StikDebug app needed once paired.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.6.0/Calcite.ipa",
+          "size": 193662211
+        },
+        {
+          "version": "0.5.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Performance Pack (Sodium, Lithium and friends).",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.5.0/Calcite.ipa",
+          "size": 191821372
+        },
+        {
           "version": "0.4.0",
           "date": "2026-10-25",
           "localizedDescription": "Automatic world backups.",
