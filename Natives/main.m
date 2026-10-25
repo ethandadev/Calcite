@@ -202,6 +202,7 @@ void init_setupCustomControls() {
     NSString *controlPath = [@(getenv("AME_HOME")) stringByAppendingPathComponent:@"controlmap"];
     [fm createDirectoryAtPath:controlPath withIntermediateDirectories:NO attributes:nil error:nil];
     generateAndSaveDefaultControl();
+    generateCalciteControlPresets();
     NSString *gamepadControlPath = [controlPath stringByAppendingPathComponent:@"gamepads"];
     [fm createDirectoryAtPath:gamepadControlPath withIntermediateDirectories:NO attributes:nil error:nil];
     generateAndSaveDefaultControlForGamepad();

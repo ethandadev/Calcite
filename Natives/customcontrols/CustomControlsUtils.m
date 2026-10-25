@@ -595,3 +595,114 @@ void initKeycodeTable(NSMutableArray* keyCodeMap, NSMutableArray* keyValueMap) {
     //addkey(MENU)
 #undef addkey
 }
+
+
+#pragma mark - Calcite control presets
+
+typedef struct {
+    const char *name;
+    int key;
+    BOOL right;      // anchor to the right edge (fx measured from the left, button grows leftwards)
+    CGFloat fx;
+    BOOL bottom;     // anchor to the bottom edge
+    CGFloat fy;
+    CGFloat w, h;
+    BOOL toggle;
+    BOOL swipe;
+} CalcitePresetButton;
+
+static void writeCalcitePreset(NSString *fileName, const CalcitePresetButton *buttons, int count, BOOL joystickRight, CGFloat joystickSize) {
+    NSString *path = [NSString stringWithFormat:@"%s/controlmap/%@.json", getenv("AME_HOME"), fileName];
+    if ([NSFileManager.defaultManager fileExistsAtPath:path]) {
+        return;
+    }
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    dict[@"version"] = @(8);
+    dict[@"scaledAt"] = @(100);
+    dict[@"mControlDataList"] = [NSMutableArray new];
+    dict[@"mDrawerDataList"] = [NSMutableArray new];
+    dict[@"mJoystickDataList"] = [NSMutableArray new];
+    for (int i = 0; i < count; i++) {
+        CalcitePresetButton b = buttons[i];
+        NSString *x = b.right
+            ? [NSString stringWithFormat:@"%f * ${screen_width} - ${width}", b.fx]
+            : [NSString stringWithFormat:@"%f * ${screen_width}", b.fx];
+        NSString *y = b.bottom
+            ? [NSString stringWithFormat:@"%f * ${screen_height} - ${height}", b.fy]
+            : [NSString stringWithFormat:@"%f * ${screen_height}", b.fy];
+        [dict[@"mControlDataList"] addObject:createDefaultControlButton(
+            [@(b.name) stringByReplacingOccurrencesOfString:@"|" withString:@"\n"],
+            (int[]){b.key, 0, 0, 0}, x, y, b.w, b.h, b.toggle, b.swipe, YES, YES, 0)];
+    }
+    NSMutableDictionary *joystick = createDefaultControlButton(@"button", (int[]){0,0,0,0},
+        joystickRight ? @"0.97 * ${screen_width} - ${width}" : @"0.03 * ${screen_width}",
+        @"0.97 * ${screen_height} - ${height}",
+        joystickSize, joystickSize, NO, NO, YES, NO, 0);
+    joystick[@"absolute"] = @NO;
+    joystick[@"forwardLock"] = @NO;
+    joystick[@"cornerRadius"] = @(0);
+    joystick[@"strokeColor"] = @(1291845632);
+    [dict[@"mJoystickDataList"] addObject:joystick];
+
+    NSOutputStream *os = [[NSOutputStream alloc] initToFileAtPath:path append:NO];
+    [os open];
+    [NSJSONSerialization writeJSONObject:dict toStream:os options:NSJSONWritingPrettyPrinted error:nil];
+    [os close];
+}
+
+void generateCalciteControlPresets() {
+    // Minimal: as little as possible on screen
+    CalcitePresetButton minimal[] = {
+        {"Jump",          GLFW_KEY_SPACE,        YES, 0.97, YES, 0.45, 64, 64, NO,  NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   YES, 0.97, YES, 0.97, 64, 64, YES, NO},
+        {"Inv",           GLFW_KEY_E,            YES, 0.83, YES, 0.97, 56, 56, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+        {"Keyboard",      SPECIALBTN_KEYBOARD,   NO,  0.14, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Minimal", minimal, sizeof(minimal)/sizeof(*minimal), NO, 180);
+
+    // Combat: big attack/use buttons, sprint, drop, swap hands
+    CalcitePresetButton combat[] = {
+        {"Attack",        SPECIALBTN_MOUSEPRI,   YES, 0.97, YES, 0.60, 92, 92, NO,  YES},
+        {"Use",           SPECIALBTN_MOUSESEC,   YES, 0.80, YES, 0.78, 76, 76, NO,  YES},
+        {"Jump",          GLFW_KEY_SPACE,        YES, 0.97, YES, 0.97, 76, 76, NO,  NO},
+        {"Sprint",        GLFW_KEY_LEFT_CONTROL, YES, 0.80, YES, 0.97, 64, 64, YES, NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   NO,  0.03, YES, 0.60, 64, 64, YES, NO},
+        {"Drop",          GLFW_KEY_Q,            YES, 0.66, YES, 0.60, 56, 56, NO,  NO},
+        {"Swap",          GLFW_KEY_F,            YES, 0.66, YES, 0.78, 56, 56, NO,  NO},
+        {"Inv",           GLFW_KEY_E,            YES, 0.66, YES, 0.97, 56, 56, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Combat", combat, sizeof(combat)/sizeof(*combat), NO, 190);
+
+    // Builder: place/break, fly down, pick block
+    CalcitePresetButton builder[] = {
+        {"Break",         SPECIALBTN_MOUSEPRI,   YES, 0.97, YES, 0.55, 88, 88, NO,  YES},
+        {"Place",         SPECIALBTN_MOUSESEC,   YES, 0.79, YES, 0.55, 88, 88, NO,  YES},
+        {"Jump|Fly",      GLFW_KEY_SPACE,        YES, 0.97, YES, 0.97, 76, 76, NO,  NO},
+        {"Down",          GLFW_KEY_LEFT_SHIFT,   YES, 0.79, YES, 0.97, 76, 76, YES, NO},
+        {"Pick",          SPECIALBTN_MOUSEMID,   YES, 0.63, YES, 0.97, 56, 56, NO,  NO},
+        {"Inv",           GLFW_KEY_E,            YES, 0.63, YES, 0.78, 56, 56, NO,  NO},
+        {"3rd|Person",    GLFW_KEY_F5,           NO,  0.14, NO,  0.02, 64, 36, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+        {"Keyboard",      SPECIALBTN_KEYBOARD,   NO,  0.26, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Builder", builder, sizeof(builder)/sizeof(*builder), NO, 180);
+
+    // Left-handed: mirrored Classic, joystick on the right
+    CalcitePresetButton lefty[] = {
+        {"Jump",          GLFW_KEY_SPACE,        NO,  0.03, YES, 0.60, 76, 76, NO,  NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   NO,  0.03, YES, 0.97, 64, 64, YES, NO},
+        {"Sprint",        GLFW_KEY_LEFT_CONTROL, NO,  0.16, YES, 0.97, 64, 64, YES, NO},
+        {"Attack",        SPECIALBTN_MOUSEPRI,   NO,  0.16, YES, 0.78, 76, 76, NO,  YES},
+        {"Use",           SPECIALBTN_MOUSESEC,   NO,  0.29, YES, 0.78, 76, 76, NO,  YES},
+        {"Inv",           GLFW_KEY_E,            NO,  0.29, YES, 0.97, 56, 56, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Keyboard",      SPECIALBTN_KEYBOARD,   NO,  0.14, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Left-handed", lefty, sizeof(lefty)/sizeof(*lefty), YES, 190);
+}
