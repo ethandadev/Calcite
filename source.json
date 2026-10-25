@@ -13,6 +13,13 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.14.3",
+          "date": "2026-10-25",
+          "localizedDescription": "26.3 MoltenVK 1.4.2 fix, bolder UI with spring animations, haptics and staggered reveals.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.14.3/Calcite.ipa",
+          "size": 212819472
+        },
+        {
           "version": "0.14.1",
           "date": "2026-10-25",
           "localizedDescription": "Minecraft 26.3 groundwork: LWJGL 3.4 + SDL3 + MoltenVK 1.4.2 stack, SDL window and input bridge. Fixes version mismatch in SideStore.",
