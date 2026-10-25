@@ -13,11 +13,11 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
-          "version": "0.14.0",
+          "version": "0.14.1",
           "date": "2026-10-25",
-          "localizedDescription": "Minecraft 26.3 groundwork: LWJGL 3.4 + SDL3 + MoltenVK 1.4.2 stack, SDL window and input bridge.",
-          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.14.0/Calcite.ipa",
-          "size": 212831972
+          "localizedDescription": "Minecraft 26.3 groundwork: LWJGL 3.4 + SDL3 + MoltenVK 1.4.2 stack, SDL window and input bridge. Fixes version mismatch in SideStore.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.14.1/Calcite.ipa",
+          "size": 212813093
         },
         {
           "version": "0.13.0",
