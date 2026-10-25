@@ -104,6 +104,22 @@ void init_loadCustomJvmFlags(int* argc, const char** argv) {
     }
 }
 
+// Minecraft 26.3+ ships LWJGL 3.4 with SDL3 windowing; it needs Calcite's separate native + Java stack.
+static BOOL versionNeedsLWJGL34(id launchTarget) {
+    if (![launchTarget isKindOfClass:NSDictionary.class]) return NO;
+    for (NSDictionary *lib in launchTarget[@"libraries"]) {
+        NSString *name = lib[@"name"];
+        if (![name hasPrefix:@"org.lwjgl:"]) continue;
+        if ([name hasPrefix:@"org.lwjgl:lwjgl-sdl:"]) return YES;
+        NSArray *parts = [name componentsSeparatedByString:@":"];
+        if ([parts[1] isEqualToString:@"lwjgl"] && parts.count > 2) {
+            NSArray *v = [parts[2] componentsSeparatedByString:@"."];
+            if (v.count > 1 && ([v[0] intValue] > 3 || ([v[0] intValue] == 3 && [v[1] intValue] >= 4))) return YES;
+        }
+    }
+    return NO;
+}
+
 int launchJVM(NSString *username, id launchTarget, int width, int height, int minVersion) {
     NSLog(@"[JavaLauncher] Beginning JVM launch");
 
@@ -243,7 +259,15 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     }
     margv[++margc] = "-Xms128M";
     margv[++margc] = [NSString stringWithFormat:@"-Xmx%dM", allocmem].UTF8String;
-    margv[++margc] = [NSString stringWithFormat:@"-Djava.library.path=%@/Frameworks", NSBundle.mainBundle.bundlePath].UTF8String;
+    NSString *bundlePath = NSBundle.mainBundle.bundlePath;
+    BOOL lwjgl34 = versionNeedsLWJGL34(launchTarget) &&
+        [fm fileExistsAtPath:[bundlePath stringByAppendingPathComponent:@"Frameworks341/libSDL3.dylib"]];
+    NSLog(@"[JavaLauncher] LWJGL 3.4 stack: %@", lwjgl34 ? @"yes" : @"no");
+    if (lwjgl34) {
+        margv[++margc] = [NSString stringWithFormat:@"-Djava.library.path=%@/Frameworks341:%@/Frameworks", bundlePath, bundlePath].UTF8String;
+    } else {
+        margv[++margc] = [NSString stringWithFormat:@"-Djava.library.path=%@/Frameworks", bundlePath].UTF8String;
+    }
     margv[++margc] = [NSString stringWithFormat:@"-Duser.dir=%@", gameDir].UTF8String;
     margv[++margc] = [NSString stringWithFormat:@"-Duser.home=%s", getenv("AME_HOME")].UTF8String;
     margv[++margc] = [NSString stringWithFormat:@"-Duser.timezone=%@", NSTimeZone.localTimeZone.name].UTF8String;
@@ -263,7 +287,17 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
         margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.opengl.libname=%s", glLibName].UTF8String;
     }
 
-    NSString *librariesPath = [NSString stringWithFormat:@"%@/libs", NSBundle.mainBundle.bundlePath];
+    if (lwjgl34) {
+        NSString *fw = [bundlePath stringByAppendingPathComponent:@"Frameworks341"];
+        margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.spvc.libname=%@/libspirv-cross.dylib", fw].UTF8String;
+        margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.shaderc.libname=%@/libshaderc.dylib", fw].UTF8String;
+        margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.sdl.libname=%@/libSDL3.dylib", fw].UTF8String;
+        margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.vulkan.libname=%@/libMoltenVK.dylib", fw].UTF8String;
+        setenv("SDL_ORIENTATIONS", "LandscapeLeft LandscapeRight", 1);
+        setenv("SDL_ENABLE_SCREEN_KEYBOARD", "0", 1);
+        setenv("CALCITE_LWJGL34", "1", 1);
+    }
+    NSString *librariesPath = [NSString stringWithFormat:@"%@/%@", bundlePath, lwjgl34 ? @"libs341" : @"libs"];
     margv[++margc] = [NSString stringWithFormat:@"-javaagent:%@/patchjna_agent.jar=", librariesPath].UTF8String;
     if(getPrefBool(@"general.cosmetica")) {
         margv[++margc] = [NSString stringWithFormat:@"-javaagent:%@/arc_dns_injector.jar=23.95.137.176", librariesPath].UTF8String;

@@ -46,6 +46,19 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/depends"
           cp -R build/StikJIT.xcarchive/Products/Library/Frameworks/StikJIT.framework "$GITHUB_WORKSPACE/depends/"
           ls "$GITHUB_WORKSPACE/depends/StikJIT.framework"
+      - name: Cache LWJGL 3.4 native stack (Minecraft 26.3+)
+        id: stack341
+        uses: actions/cache@v4
+        with:
+          path: Natives/resources/Frameworks341
+          key: stack341-${{ hashFiles('scripts/fetch-stack341.sh') }}
+      - name: Fetch/build LWJGL 3.4 native stack
+        if: steps.stack341.outputs.cache-hit != 'true'
+        run: scripts/fetch-stack341.sh
+      - name: Build LWJGL 3.4 Java stack
+        run: |
+          export BOOTJDK="$JAVA_HOME/bin"
+          scripts/build-java341.sh
       - name: Build
         run: |
           export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
