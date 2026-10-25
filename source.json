@@ -13,6 +13,13 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.15.3",
+          "date": "2026-10-25",
+          "localizedDescription": "Fixes launch crash in 0.15.2 (tab bar attachment).",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.15.3/Calcite.ipa",
+          "size": 212848526
+        },
+        {
           "version": "0.15.2",
           "date": "2026-10-25",
           "localizedDescription": "Skin Manager sign-in fix, Settings card, tab bar placement, MoltenVK 1.4.2 for 26.3, pairing advertisement rewrite.",
