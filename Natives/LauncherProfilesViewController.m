@@ -228,6 +228,56 @@ typedef NS_ENUM(NSUInteger, LauncherProfilesTableSection) {
     [self actionEditProfile:PLProfiles.current.profiles.allValues[indexPath.row]];
 }
 
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == kInstances) return nil;
+    NSString *name = PLProfiles.current.profiles.allKeys[indexPath.row];
+    UIContextualAction *dup = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:@"Clone"
+        handler:^(UIContextualAction *a, UIView *v, void (^done)(BOOL)) {
+        [self calciteCloneProfile:name];
+        done(YES);
+    }];
+    dup.backgroundColor = UIColor.systemTealColor;
+    return [UISwipeActionsConfiguration configurationWithActions:@[dup]];
+}
+
+/// Copies a profile and gives the copy its own game folder with the original's mods, config, saves and packs.
+- (void)calciteCloneProfile:(NSString *)name {
+    NSMutableDictionary *profiles = (id)PLProfiles.current.profiles;
+    NSMutableDictionary *src = profiles[name];
+    if (!src) return;
+    NSString *newName = [name stringByAppendingString:@" (copy)"];
+    for (int i = 2; profiles[newName]; i++) newName = [NSString stringWithFormat:@"%@ (copy %d)", name, i];
+    NSMutableDictionary *copy = [src mutableCopy];
+    if (copy[@"name"]) copy[@"name"] = newName;
+
+    NSString *group = getPrefObject(@"general.game_directory");
+    NSString *root = [NSString stringWithFormat:@"%s/instances/%@", getenv("AME_HOME"), group];
+    NSString *oldDir = src[@"gameDir"] ?: @".";
+    NSString *newDirName = [[newName componentsSeparatedByCharactersInSet:
+        [NSCharacterSet characterSetWithCharactersInString:@"/\\:*?\"<>|"]] componentsJoinedByString:@"_"];
+    NSString *from = [[root stringByAppendingPathComponent:oldDir] stringByStandardizingPath];
+    NSString *to = [root stringByAppendingPathComponent:newDirName];
+    UIAlertController *wait = [UIAlertController alertControllerWithTitle:@"Cloning" message:newName preferredStyle:UIAlertControllerStyleAlert];
+    [self presentViewController:wait animated:YES completion:nil];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        NSFileManager *fm = NSFileManager.defaultManager;
+        [fm createDirectoryAtPath:to withIntermediateDirectories:YES attributes:nil error:nil];
+        for (NSString *item in @[@"mods", @"config", @"saves", @"resourcepacks", @"shaderpacks", @"options.txt"]) {
+            NSString *s = [from stringByAppendingPathComponent:item];
+            if ([fm fileExistsAtPath:s]) [fm copyItemAtPath:s toPath:[to stringByAppendingPathComponent:item] error:nil];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            copy[@"gameDir"] = newDirName;
+            profiles[newName] = copy;
+            [PLProfiles.current save];
+            [wait dismissViewControllerAnimated:YES completion:^{
+                [self.tableView reloadData];
+            }];
+        });
+    });
+}
+
 #pragma mark Context Menu configuration
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
