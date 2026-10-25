@@ -2,6 +2,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <libgen.h>
+#include <mach/mach.h>
 #include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,10 @@
 #include "utils.h"
 
 #import "ios_uikit_bridge.h"
+
+// Not always visible through the iOS SDK headers on GitHub-hosted runners.
+extern kern_return_t task_set_exception_ports(task_t task, exception_mask_t exception_mask,
+    mach_port_t new_port, exception_behavior_t behavior, thread_state_flavor_t new_flavor);
 #import "JavaLauncher.h"
 #import "LauncherPreferences.h"
 #import "MinecraftOptionUtils.h"
