@@ -13,10 +13,17 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.2.0",
+          "date": "2026-10-25",
+          "localizedDescription": "Compact keyboard and four control layouts.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.2.0/Calcite.ipa",
+          "size": 191814534
+        },
+        {
           "version": "0.1.0",
           "date": "2026-10-25",
           "localizedDescription": "First Calcite build: Java 25 fix for Minecraft 26.x.",
-          "downloadURL": "https://github.com/ethandadev/Calcite/releases/latest/download/Calcite.ipa",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.1.0/Calcite.ipa",
           "size": 191000000
         }
       ]
