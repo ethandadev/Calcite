@@ -19,3 +19,4 @@ entitlements.codesign.xml
 *.xcodeproj/xcuserdata
 out/
 *.ipa
+Natives/pairing/*.a

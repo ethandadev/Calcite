@@ -7,6 +7,7 @@
 #import "LauncherPreferences.h"
 #import "LauncherPreferencesViewController.h"
 #import "CalciteBuiltInJIT.h"
+#import "CalciteOnDevicePairing.h"
 #import "LauncherPrefContCfgViewController.h"
 #import "LauncherPrefManageJREViewController.h"
 #import "UIKit+hook.h"
@@ -120,6 +121,14 @@
               @"enableCondition": whenNotInGame,
               @"action": ^void(){
                   [CalciteBuiltInJIT importPairingFileFrom:self];
+              }
+            },
+            @{@"key": @"jit_pair_here",
+              @"icon": @"iphone.gen3.radiowaves.left.and.right",
+              @"type": self.typeButton,
+              @"enableCondition": whenNotInGame,
+              @"action": ^void(){
+                  [CalciteOnDevicePairing startFrom:self];
               }
             },
             @{@"key": @"jit_prepare",

@@ -29,6 +29,12 @@ jobs:
           java-version: "8"
       - name: Tools
         run: brew install make ldid cmake ninja xcodegen
+      - name: Build on-device pairing library (Rust)
+        run: |
+          rustup target add aarch64-apple-ios
+          cd Natives/pairing
+          IPHONEOS_DEPLOYMENT_TARGET=17.0 cargo build --release --locked --target aarch64-apple-ios
+          cp target/aarch64-apple-ios/release/libcalcite_pairing.a .
       - name: Build StikJIT (built-in JIT engine, MPL-2.0)
         run: |
           git clone --depth 1 --branch 1.9.0 https://github.com/StikDebug/StikJIT "$RUNNER_TEMP/StikJIT"

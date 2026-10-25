@@ -225,6 +225,7 @@
 "preference.title.builtin_jit" = "Built-in JIT (beta)";
 "preference.detail.builtin_jit" = "Enable JIT without StikDebug, using Calcite's own helper. Needs an imported pairing file and LocalDevVPN connected. If it fails, Calcite shows why instead of silently switching.";
 "preference.title.jit_import_pairing" = "Import pairing file";
+"preference.title.jit_pair_here" = "Pair on this iPhone (iOS 27)";
 "preference.title.jit_prepare" = "Prepare JIT";
 "preference.title.jit_reset_ddi" = "Reset Developer Disk Image";
 "preference.title.compact_keyboard" = "Compact keyboard";

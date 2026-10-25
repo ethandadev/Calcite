@@ -175,6 +175,7 @@ add_executable(AngelAuraAmethyst
   CalciteKeyboardView.m
     CalciteModBrowser.m
     CalciteSkinManager.m
+    CalciteOnDevicePairing.m
   CalcitePerformancePack.m
   CalciteWorldBackup.m
   TrackedTextField.m
@@ -186,6 +187,13 @@ add_executable(AngelAuraAmethyst
 
 if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "Linux|^GNU$|Android")
 target_sources(AngelAuraAmethyst PUBLIC non_darwin_utils.m)
+endif()
+
+# On-device pairing (Rust static library built by CI; optional)
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/pairing/libcalcite_pairing.a")
+  target_compile_definitions(AngelAuraAmethyst PRIVATE CALCITE_HAS_PAIRING=1)
+  target_include_directories(AngelAuraAmethyst PRIVATE "${CMAKE_CURRENT_LIST_DIR}")
+  target_link_libraries(AngelAuraAmethyst PRIVATE "${CMAKE_CURRENT_LIST_DIR}/pairing/libcalcite_pairing.a" resolv "-framework Security")
 endif()
 
 target_link_libraries(AngelAuraAmethyst

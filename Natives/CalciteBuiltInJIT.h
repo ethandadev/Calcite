@@ -9,6 +9,7 @@
 + (NSString *)unavailableReason;
 
 + (BOOL)hasPairingFile;
++ (NSURL *)pairingFileURL;
 
 /// Lets the user pick a pairing file and stores it for the helper.
 + (void)importPairingFileFrom:(UIViewController *)presenter;
