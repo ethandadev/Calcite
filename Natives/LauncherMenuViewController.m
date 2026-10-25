@@ -65,7 +65,6 @@
         [CalciteCrashExplainer presentIfNeededFrom:self];
     });
     [CalciteWorldBackup backupChangedWorldsInBackground];
-    [CalciteOnboardingViewController presentFrom:self force:NO];
 }
 
 - (void)viewDidLoad {

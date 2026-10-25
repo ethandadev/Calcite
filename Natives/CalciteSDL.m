@@ -270,3 +270,14 @@ void CalciteSDL_startAdopter(void) {
         [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *t) { adoptSDLWindows(); }];
     });
 }
+
+void CalciteSDL_preseedHints(void) {
+    NSString *path = [NSString stringWithFormat:@"%@/Frameworks341/libSDL3.dylib", NSBundle.mainBundle.bundlePath];
+    void *lib = dlopen(path.UTF8String, RTLD_LAZY | RTLD_GLOBAL);
+    if (!lib) { NSLog(@"[CalciteSDL] could not preload SDL3: %s", dlerror()); return; }
+    bool (*setHint)(const char *, const char *) = dlsym(lib, "SDL_SetHint");
+    if (!setHint) return;
+    setHint("SDL_ORIENTATIONS", "LandscapeLeft LandscapeRight");
+    setHint("SDL_ENABLE_SCREEN_KEYBOARD", "0");
+    NSLog(@"[CalciteSDL] preseeded SDL hints");
+}

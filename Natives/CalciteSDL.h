@@ -17,3 +17,6 @@ void CalciteSDL_button(int glfwButton, int action);
 void CalciteSDL_cursor(char event, CGFloat x, CGFloat y);
 void CalciteSDL_scroll(CGFloat x, CGFloat y);
 void CalciteSDL_text(unsigned int codepoint);
+
+// Sets default SDL hints (landscape, no on-screen keyboard) through the API before the game starts.
+void CalciteSDL_preseedHints(void);

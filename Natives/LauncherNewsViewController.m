@@ -50,7 +50,6 @@ UIEdgeInsets insets;
         [self showWarningAlert:@"limited_ram" hasPreference:YES exitWhenCompleted:NO];
     }
 
-    self.navigationItem.leftBarButtonItem = self.splitViewController.displayModeButtonItem;
     self.navigationItem.rightBarButtonItem = [sidebarViewController drawAccountButton];
     self.navigationItem.leftItemsSupplementBackButton = true;
 }

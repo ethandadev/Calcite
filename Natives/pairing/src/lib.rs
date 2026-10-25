@@ -181,15 +181,20 @@ async fn run(
         loop {
             tokio::select! {
                 conn = listener.accept() => {
-                    let (stream, _) = conn.map_err(|e| Outcome::Failed(format!("accept failed: {e}")))?;
+                    let (stream, addr) = conn.map_err(|e| Outcome::Failed(format!("accept failed: {e}")))?;
+                    target.show(format!("EVT:The iPhone connected ({addr}). Starting the handshake…"));
                     let (mut f, i, shown) = (file.clone(), info.clone(), pin_shown.clone());
                     tasks.spawn(async move {
                         let mut host = PairableHost::new(RpPairingSocket::new_device(stream), i);
-                        host.accept(&mut f, |pin| {
+                        let res = host.accept(&mut f, |pin| {
                             shown.store(true, Ordering::SeqCst);
-                            target.show(pin);
+                            target.show(format!("PIN:{pin}"));
                             async {}
-                        }).await.map(|_| f)
+                        }).await.map(|_| f);
+                        if let Err(e) = &res {
+                            target.show(format!("EVT:Handshake error: {e}"));
+                        }
+                        res
                     });
                 }
                 Some(done) = tasks.join_next() => match done {

@@ -1,3 +1,3 @@
 /* Localized versions of Info.plist keys */
-"Amethyst uses the local network to find and communicate with AltServer and LAN servers." = "Amethyst uses the local network to find and communicate with AltServer and LAN servers.";
-"Amethyst uses the microphone to enable support for voice chat mods." = "Amethyst uses the microphone to enable support for voice chat mods.";
+"Calcite uses the local network to find AltServer, join LAN servers, and pair this device for built-in JIT." = "Calcite uses the local network to find AltServer, join LAN servers, and pair this device for built-in JIT.";
+"Calcite uses the microphone to enable support for voice chat mods." = "Calcite uses the microphone to enable support for voice chat mods.";

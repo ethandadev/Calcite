@@ -12,6 +12,7 @@
 
 #include "utils.h"
 
+#import "CalciteSDL.h"
 #import "ios_uikit_bridge.h"
 
 // Not always visible through the iOS SDK headers on GitHub-hosted runners.
@@ -139,16 +140,16 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
             NSString *lcAppInfoPath = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"LCAppInfo.plist"];
             NSMutableDictionary *lcAppInfo = [NSMutableDictionary dictionaryWithContentsOfFile:lcAppInfoPath];
             if(lcAppInfo) {
-                // if this is inside LiveContainer, we assign script ourselves and prompt user to restart Amethyst
+                // if this is inside LiveContainer, we assign script ourselves and prompt user to restart Calcite
                 lcAppInfo[@"jitLaunchScriptJs"] = [[NSData dataWithContentsOfFile:inBundleScriptPath] base64EncodedStringWithOptions:0];
                 if([lcAppInfo writeToFile:lcAppInfoPath atomically:YES]) {
-                    showDialog(localize(@"Error", nil), @"Amethyst was launched with a legacy script. We have updated the script to Universal, please restart LiveContainer to continue.");
+                    showDialog(localize(@"Error", nil), @"Calcite was launched with a legacy script. We have updated the script to Universal, please restart LiveContainer to continue.");
                     [PLLogOutputView handleExitCode:1];
                     return 1;
                 }
             }
             [NSFileManager.defaultManager copyItemAtPath:inBundleScriptPath toPath:[NSString stringWithFormat:@"%s/UniversalJIT26.js", getenv("AME_HOME")] error:nil];
-            showDialog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. To import it, long-press on Amethyst when enabling JIT in StikDebug and tap \"Assign Script\", then go to Amethyst's Documents directory and pick it. (on sideloaded StikDebug, the builtin script is named Amethyst-MeloNX.js)");
+            showDialog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. To import it, long-press on Calcite when enabling JIT in StikDebug and tap \"Assign Script\", then go to Amethyst's Documents directory and pick it. (on sideloaded StikDebug, the builtin script is named Amethyst-MeloNX.js)");
             [PLLogOutputView handleExitCode:1];
             return 1;
         }
@@ -293,8 +294,9 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
         margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.shaderc.libname=%@/libshaderc.dylib", fw].UTF8String;
         margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.sdl.libname=%@/libSDL3.dylib", fw].UTF8String;
         margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.vulkan.libname=%@/libMoltenVK.dylib", fw].UTF8String;
-        setenv("SDL_ORIENTATIONS", "LandscapeLeft LandscapeRight", 1);
-        setenv("SDL_ENABLE_SCREEN_KEYBOARD", "0", 1);
+        // Hints go through SDL's API, not the environment: Minecraft sets some hints itself and SDL
+        // refuses (and Minecraft aborts) when an environment variable already owns that hint.
+        CalciteSDL_preseedHints();
         setenv("CALCITE_LWJGL34", "1", 1);
     }
     NSString *librariesPath = [NSString stringWithFormat:@"%@/%@", bundlePath, lwjgl34 ? @"libs341" : @"libs"];

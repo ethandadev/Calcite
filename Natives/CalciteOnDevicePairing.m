@@ -9,7 +9,7 @@
 #endif
 
 #ifdef HAS_PAIRING
-@interface CalciteOnDevicePairing ()
+@interface CalciteOnDevicePairing () <NSNetServiceDelegate>
 @property(nonatomic) CalcitePairing *session;
 @property(nonatomic) NSNetService *service;
 @property(nonatomic, weak) UIViewController *presenter;
@@ -19,17 +19,35 @@
 
 static CalciteOnDevicePairing *current; // one session at a time
 
-static void pinShown(const char *pin, void *ctx) {
-    NSString *code = @(pin);
+static void pinShown(const char *msg, void *ctx) {
+    NSString *text = @(msg);
+    NSLog(@"[Pairing] %@", text);
     CalciteOnDevicePairing *self = (__bridge CalciteOnDevicePairing *)ctx;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.alert.title = @"Enter this code on your iPhone";
-        self.alert.message = [NSString stringWithFormat:@"\n%@\n\nType it into the prompt that appeared on this iPhone.", code];
+        if ([text hasPrefix:@"PIN:"]) {
+            self.alert.title = @"Enter this code on your iPhone";
+            self.alert.message = [NSString stringWithFormat:@"\n%@\n\nType it into the prompt that appeared on this iPhone.", [text substringFromIndex:4]];
+        } else if ([text hasPrefix:@"EVT:"]) {
+            self.alert.title = @"Pairing…";
+            self.alert.message = [text substringFromIndex:4];
+        }
     });
 }
 #endif
 
 @implementation CalciteOnDevicePairing
+
+#ifdef HAS_PAIRING
+- (void)netServiceDidPublish:(NSNetService *)sender {
+    NSLog(@"[Pairing] Bonjour service published: %@", sender.name);
+    self.alert.message = @"Ready. On this iPhone open Settings > Privacy & Security > Developer Mode and choose \"Calcite\" from the computers list.";
+}
+- (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary<NSString *, NSNumber *> *)errorDict {
+    NSLog(@"[Pairing] Bonjour publish failed: %@", errorDict);
+    self.alert.title = @"Couldn't advertise";
+    self.alert.message = [NSString stringWithFormat:@"Allow Local Network access for Calcite in Settings > Privacy & Security > Local Network, then try again. (%@)", errorDict];
+}
+#endif
 
 + (BOOL)isSupported {
 #ifdef HAS_PAIRING
@@ -64,6 +82,8 @@ static void pinShown(const char *pin, void *ctx) {
     p.service = [[NSNetService alloc] initWithDomain:@"" type:@"_remotepairing-pairable-host._tcp."
         name:@(calcite_pairing_service_name(session)) port:calcite_pairing_port(session)];
     [p.service setTXTRecordData:[NSNetService dataFromTXTRecordDictionary:txt]];
+    p.service.delegate = p;
+    NSLog(@"[Pairing] publishing %@ on port %d (%lu TXT records)", @(calcite_pairing_service_name(session)), (int)calcite_pairing_port(session), (unsigned long)txt.count);
     [p.service publish];
 
     p.alert = [UIAlertController alertControllerWithTitle:@"Pair this iPhone"
