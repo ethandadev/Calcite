@@ -5,12 +5,17 @@ on:
     tags: ["v*"]
 jobs:
   ipa:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Select newest Xcode (upstream needs the iOS 26 SDK)
+        run: |
+          X=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          [ -n "$X" ] && sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version; xcrun --sdk iphoneos --show-sdk-version
       - name: JDK 8 (boot JDK for the Java app build)
         uses: actions/setup-java@v4
         with:
