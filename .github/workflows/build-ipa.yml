@@ -49,6 +49,14 @@ jobs:
         run: |
           mkdir -p out
           cp artifacts/dev.ethandadev.calcite-*-ios.ipa out/Calcite.ipa
+      - name: Verify bundles are installable
+        run: |
+          rm -rf verify && mkdir verify && unzip -q out/Calcite.ipa -d verify
+          bad=0
+          for b in verify/Payload/*.app/Frameworks/*.framework verify/Payload/*.app/PlugIns/*.appex; do
+            [ -f "$b/Info.plist" ] || { echo "MISSING Info.plist: $b"; bad=1; }
+          done
+          exit $bad
       - uses: actions/upload-artifact@v4
         with:
           name: Calcite-ipa

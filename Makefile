@@ -353,6 +353,8 @@ helper: native
 		mkdir -p $$APPEX $$APP/Frameworks; \
 		rm -rf $$APP/Frameworks/StikJIT.framework; \
 		cp -R '$(STIKJIT_FW)' $$APP/Frameworks/; \
+		rm -rf $$APP/Frameworks/StikJIT.framework/Headers $$APP/Frameworks/StikJIT.framework/Modules; \
+		cp $(HELPER_DIR)/StikJIT-Info.plist $$APP/Frameworks/StikJIT.framework/Info.plist || exit 1; \
 		xcrun --sdk iphoneos swiftc -target arm64-apple-ios17.4 -sdk '$(SDKPATH)' \
 			-module-name CalciteJITHelper -O -application-extension \
 			-F "$$(dirname '$(STIKJIT_FW)')" \
