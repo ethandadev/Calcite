@@ -8,6 +8,7 @@
 #import "CalcitePerformancePack.h"
 #import "CalciteModBrowser.h"
 #import "CalciteSkinManager.h"
+#import "CalciteHealthCheck.h"
 #import "CalciteWorldBackup.h"
 #import "LauncherNewsViewController.h"
 #import "LauncherPreferences.h"
@@ -111,6 +112,13 @@
           title:@"Skin Manager"
           imageName:@"person.crop.square.fill" action:^{
         [CalciteSkinManager presentFrom:self];
+    }]];
+
+    [self.options addObject:
+     (id)[LauncherMenuCustomItem
+          title:@"Health Check"
+          imageName:@"checkmark.shield.fill" action:^{
+        [CalciteHealthCheck presentFrom:self];
     }]];
 
     // TODO: Finish log-uploading service integration
