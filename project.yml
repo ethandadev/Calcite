@@ -1,0 +1,25 @@
+name: Calcite
+options:
+  bundleIdPrefix: dev.ethandadev
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  CalciteCore:
+    path: .
+targets:
+  Calcite:
+    type: application
+    platform: iOS
+    sources: [App]
+    dependencies:
+      - package: CalciteCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ethandadev.calcite
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Calcite
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.9"
