@@ -24,7 +24,6 @@ extern NSMutableDictionary *prefDict;
 @property(nonatomic) CalciteTabBar *tabBar;
 @property(nonatomic) NSArray<UIViewController *> *tabRoots;
 @end
-@end
 
 @implementation LauncherSplitViewController
 
