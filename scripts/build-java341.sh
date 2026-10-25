@@ -60,7 +60,8 @@ p.write_text(s)
 PY
 
 echo "== Compiling"
-make -j4 BOOTJDK="$BOOTJDK"
+# The upstream Java makefile occasionally races under -j and emits an empty class; retry serially.
+make -j4 BOOTJDK="$BOOTJDK" || { echo "retrying serially"; rm -rf build; make -j1 BOOTJDK="$BOOTJDK"; }
 
 mkdir -p "$ROOT/JavaApp/build341"
 cp build/lwjgl.jar build/launcher.jar build/patchjna_agent.jar "$ROOT/JavaApp/build341/"
