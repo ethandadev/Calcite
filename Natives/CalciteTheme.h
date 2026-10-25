@@ -11,6 +11,7 @@
 + (UIColor *)surface;
 + (UIFont *)roundedFont:(CGFloat)size weight:(UIFontWeight)weight;
 + (void)styleSidebarCell:(UITableViewCell *)cell;
++ (UIImage *)settingsTile:(NSString *)symbol destructive:(BOOL)destructive;
 + (void)styleCardCell:(UITableViewCell *)cell;
 + (void)revealCell:(UITableViewCell *)cell atRow:(NSInteger)row;
 + (void)riseIn:(NSArray<UIView *> *)views;

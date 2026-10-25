@@ -209,4 +209,29 @@
     [play.layer addAnimation:pulse forKey:@"pulse"];
 }
 
+// iOS-Settings style icon: white symbol on a coloured rounded square.
++ (UIImage *)settingsTile:(NSString *)symbol destructive:(BOOL)destructive {
+    UIImage *glyph = [UIImage systemImageNamed:symbol];
+    if (!glyph) return nil;
+    NSArray<UIColor *> *palette = @[
+        [UIColor colorWithRed:0.17 green:0.70 blue:0.64 alpha:1], [UIColor colorWithRed:0.20 green:0.50 blue:0.95 alpha:1],
+        [UIColor colorWithRed:0.95 green:0.55 blue:0.15 alpha:1], [UIColor colorWithRed:0.60 green:0.38 blue:0.90 alpha:1],
+        [UIColor colorWithRed:0.90 green:0.30 blue:0.45 alpha:1], [UIColor colorWithRed:0.25 green:0.75 blue:0.40 alpha:1],
+        [UIColor colorWithRed:0.45 green:0.50 blue:0.58 alpha:1],
+    ];
+    UIColor *bg = destructive ? [UIColor colorWithRed:0.92 green:0.28 blue:0.27 alpha:1] : palette[symbol.hash % palette.count];
+    CGSize size = CGSizeMake(30, 30);
+    UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:size];
+    UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+        [bg setFill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 30, 30) cornerRadius:7] fill];
+        UIImage *white = [[glyph imageWithConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightSemibold]]
+                          imageWithTintColor:UIColor.whiteColor renderingMode:UIImageRenderingModeAlwaysOriginal];
+        CGSize g = white.size;
+        CGFloat k = MIN(1, 18 / MAX(g.width, g.height));
+        [white drawInRect:CGRectMake((30 - g.width * k) / 2, (30 - g.height * k) / 2, g.width * k, g.height * k)];
+    }];
+    return [img imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+}
+
 @end

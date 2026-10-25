@@ -178,18 +178,37 @@ typedef NS_ENUM(NSUInteger, LauncherProfilesTableSection) {
 
 - (void)setupProfileCell:(UITableViewCell *) cell atRow:(NSInteger)row {
     NSMutableDictionary *profile = PLProfiles.current.profiles.allValues[row];
+    NSString *key = PLProfiles.current.profiles.allKeys[row];
+    BOOL selected = [key isEqualToString:PLProfiles.current.selectedProfileName];
 
     cell.textLabel.text = profile[@"name"];
-    [CalciteTheme styleCardCell:cell];
-    cell.detailTextLabel.text = profile[@"lastVersionId"];
+    cell.detailTextLabel.text = selected ? [NSString stringWithFormat:@"Selected  ·  %@", profile[@"lastVersionId"] ?: @""] : profile[@"lastVersionId"];
     cell.imageView.layer.magnificationFilter = kCAFilterNearest;
+    [CalciteTheme styleCardCell:cell];
+    cell.textLabel.textColor = selected ? [CalciteTheme accent] : UIColor.labelColor;
+    cell.detailTextLabel.textColor = selected ? [CalciteTheme accent] : UIColor.secondaryLabelColor;
+
+    // Selected: filled check. Others: an info button that opens the editor.
+    UIButton *accessory = [UIButton buttonWithType:UIButtonTypeSystem];
+    accessory.frame = CGRectMake(0, 0, 36, 36);
+    accessory.tag = row;
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular];
+    [accessory setImage:[UIImage systemImageNamed:selected ? @"checkmark.circle.fill" : @"info.circle" withConfiguration:cfg] forState:UIControlStateNormal];
+    accessory.tintColor = selected ? [CalciteTheme accent] : UIColor.tertiaryLabelColor;
+    [accessory addTarget:self action:@selector(calciteEditTapped:) forControlEvents:UIControlEventTouchUpInside];
+    cell.accessoryView = accessory;
+    cell.accessoryType = UITableViewCellAccessoryNone;
 
     UIImage *fallbackImage = [[UIImage imageNamed:@"DefaultProfile"] _imageWithSize:CGSizeMake(40, 40)];
     [cell.imageView setImageWithURL:[NSURL URLWithString:profile[@"icon"]] placeholderImage:fallbackImage];
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    [CalciteTheme revealCell:cell atRow:indexPath.row];
+- (void)calciteEditTapped:(UIButton *)sender {
+    [self actionEditProfile:PLProfiles.current.profiles.allValues[sender.tag]];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    return section == kProfiles ? @"Tap an instance to play with it. Tap ⓘ to edit it, swipe right to clone, swipe left to delete." : nil;
 }
 
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -231,7 +250,14 @@ typedef NS_ENUM(NSUInteger, LauncherProfilesTableSection) {
         return;
     }
 
-    [self actionEditProfile:PLProfiles.current.profiles.allValues[indexPath.row]];
+    // Tapping an instance selects it (the Play button and Home screen follow); the (i) button edits.
+    NSString *key = PLProfiles.current.profiles.allKeys[indexPath.row];
+    if (![key isEqualToString:PLProfiles.current.selectedProfileName]) {
+        [[UIImpactFeedbackGenerator.alloc initWithStyle:UIImpactFeedbackStyleMedium] impactOccurred];
+        PLProfiles.current.selectedProfileName = key;
+        [self.navigationController performSelector:@selector(reloadProfileList)];
+        [UIView transitionWithView:tableView duration:0.35 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{ [tableView reloadData]; } completion:nil];
+    }
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath

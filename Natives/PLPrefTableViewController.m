@@ -1,3 +1,4 @@
+#import "CalciteTheme.h"
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
@@ -140,7 +141,7 @@
     // Set general properties
     BOOL destructive = [item[@"destructive"] boolValue];
     cell.imageView.tintColor = destructive ? UIColor.systemRedColor : nil;
-    cell.imageView.image = [UIImage systemImageNamed:item[@"icon"]];
+    cell.imageView.image = item[@"icon"] ? ([CalciteTheme settingsTile:item[@"icon"] destructive:destructive] ?: [UIImage systemImageNamed:item[@"icon"]]) : nil;
     
     if (cellStyle != UITableViewCellStyleValue1) {
         cell.detailTextLabel.text = nil;
