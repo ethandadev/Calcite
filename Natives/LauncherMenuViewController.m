@@ -5,6 +5,7 @@
 #import "LauncherNavigationController.h"
 #import "LauncherMenuViewController.h"
 #import "CalciteCrashExplainer.h"
+#import "CalciteWorldBackup.h"
 #import "LauncherNewsViewController.h"
 #import "LauncherPreferences.h"
 #import "LauncherPreferencesViewController.h"
@@ -56,6 +57,7 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [CalciteCrashExplainer presentIfNeededFrom:self];
     });
+    [CalciteWorldBackup backupChangedWorldsInBackground];
 }
 
 - (void)viewDidLoad {
