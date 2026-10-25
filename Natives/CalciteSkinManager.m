@@ -13,10 +13,20 @@ static CalciteSkinManager *activeManager; // keeps the picker delegate alive
 
 @implementation CalciteSkinManager
 
+// Microsoft tokens live in the keychain (authData only holds them briefly while logging in).
++ (NSString *)currentToken {
+    BaseAuthenticator *auth = BaseAuthenticator.current;
+    NSString *t = auth.authData[@"accessToken"];
+    if (t.length && ![t isEqualToString:@"offline"]) return t;
+    NSString *xuid = auth.authData[@"xuid"];
+    if (!xuid) return nil;
+    return [MicrosoftAuthenticator tokenDataOfProfile:xuid][@"accessToken"];
+}
+
 + (void)presentFrom:(UIViewController *)presenter {
     BaseAuthenticator *auth = BaseAuthenticator.current;
-    NSString *token = auth.authData[@"accessToken"];
-    if (!auth || !token || [token isEqualToString:@"offline"]) {
+    NSString *token = [self currentToken];
+    if (!auth || !token) {
         showDialog(@"Microsoft account needed",
             @"Skins live on Mojang's servers, so they can only be changed for a signed-in Microsoft account. "
             @"Offline accounts show a skin through Cosmetica instead (Settings > General > Cosmetica).");
@@ -50,7 +60,7 @@ static CalciteSkinManager *activeManager; // keeps the picker delegate alive
     UIAlertController *wait = [UIAlertController alertControllerWithTitle:@"Working..." message:nil preferredStyle:UIAlertControllerStyleAlert];
     [presenter presentViewController:wait animated:YES completion:nil];
     void (^send)(void) = ^{
-        NSString *token = BaseAuthenticator.current.authData[@"accessToken"];
+        NSString *token = [CalciteSkinManager currentToken];
         NSString *url = [method isEqualToString:@"DELETE"]
             ? @"https://api.minecraftservices.com/minecraft/profile/skins/active"
             : @"https://api.minecraftservices.com/minecraft/profile/skins";

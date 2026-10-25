@@ -118,7 +118,21 @@ extern NSMutableDictionary *prefDict;
         @{@"symbol": @"gearshape.fill", @"title": @"Settings"},
     ]];
     self.tabBar.onSelect = ^(NSInteger i) { [weak showTab:i]; };
-    [self.view addSubview:self.tabBar];
+    // Lives inside the content navigation controller's view (above its toolbar) so the split view
+    // can't cover it.
+    self.tabBar.translatesAutoresizingMaskIntoConstraints = NO;
+    [detail.view addSubview:self.tabBar];
+    [NSLayoutConstraint activateConstraints:@[
+        [self.tabBar.centerXAnchor constraintEqualToAnchor:detail.view.centerXAnchor],
+        [self.tabBar.bottomAnchor constraintEqualToAnchor:detail.toolbar.topAnchor constant:-8],
+        [self.tabBar.heightAnchor constraintEqualToConstant:62],
+        [self.tabBar.widthAnchor constraintLessThanOrEqualToConstant:420],
+        [self.tabBar.leadingAnchor constraintGreaterThanOrEqualToAnchor:detail.view.leadingAnchor constant:16],
+        [self.tabBar.trailingAnchor constraintLessThanOrEqualToAnchor:detail.view.trailingAnchor constant:-16],
+    ]];
+    NSLayoutConstraint *wide = [self.tabBar.widthAnchor constraintEqualToConstant:420];
+    wide.priority = UILayoutPriorityDefaultHigh;
+    wide.active = YES;
 
     detail.delegate = self;
     detail.additionalSafeAreaInsets = UIEdgeInsetsMake(0, 0, 76, 0);
@@ -158,17 +172,11 @@ extern NSMutableDictionary *prefDict;
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    UIEdgeInsets safe = self.view.safeAreaInsets;
-    CGFloat w = MIN(self.view.bounds.size.width - 32, 420), h = 62;
-    CGFloat toolbarH = [self contentNav].toolbar.frame.size.height;
-    CGFloat y = self.view.bounds.size.height - safe.bottom - toolbarH - h - 8;
-    BOOL shown = self.tabBar.userInteractionEnabled;
-    CGAffineTransform t = self.tabBar.transform;
-    self.tabBar.transform = CGAffineTransformIdentity;
-    self.tabBar.frame = CGRectMake((self.view.bounds.size.width - w) / 2, y, w, h);
-    self.tabBar.transform = t;
-    (void)shown;
-    [self.view bringSubviewToFront:self.tabBar];
+    [[self contentNav].view bringSubviewToFront:self.tabBar];
+}
+
+- (void)showTabIndex:(NSNumber *)index {
+    [self.tabBar selectIndex:index.integerValue animated:YES notify:YES];
 }
 
 - (void)splitViewController:(UISplitViewController *)svc willChangeToDisplayMode:(UISplitViewControllerDisplayMode)displayMode {

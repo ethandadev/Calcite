@@ -49,7 +49,7 @@
     // Account
     BaseAuthenticator *auth = BaseAuthenticator.current;
     NSString *user = auth.authData[@"username"];
-    BOOL offline = [auth.authData[@"accessToken"] isEqualToString:@"offline"];
+    BOOL offline = ![auth isKindOfClass:MicrosoftAuthenticator.class];
     [lines addObject:[self line:user != nil title:user ? [NSString stringWithFormat:@"Account: %@%@", user, offline ? @" (offline)" : @""] : @"No account selected"
         detail:user ? (offline ? @"Offline accounts can't join most servers." : @"") : @"Tap the account button to sign in."]];
 

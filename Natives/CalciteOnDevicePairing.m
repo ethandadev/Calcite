@@ -1,4 +1,6 @@
 #import "CalciteOnDevicePairing.h"
+#include <dns_sd.h>
+#include <arpa/inet.h>
 #import "CalciteBuiltInJIT.h"
 #import "ios_uikit_bridge.h"
 #import "utils.h"
@@ -9,9 +11,9 @@
 #endif
 
 #ifdef HAS_PAIRING
-@interface CalciteOnDevicePairing () <NSNetServiceDelegate>
+@interface CalciteOnDevicePairing ()
 @property(nonatomic) CalcitePairing *session;
-@property(nonatomic) NSNetService *service;
+@property(nonatomic) DNSServiceRef bonjour;
 @property(nonatomic, weak) UIViewController *presenter;
 @property(nonatomic) UIAlertController *alert;
 @property(nonatomic) BOOL finished;
@@ -38,14 +40,19 @@ static void pinShown(const char *msg, void *ctx) {
 @implementation CalciteOnDevicePairing
 
 #ifdef HAS_PAIRING
-- (void)netServiceDidPublish:(NSNetService *)sender {
-    NSLog(@"[Pairing] Bonjour service published: %@", sender.name);
-    self.alert.message = @"Ready. On this iPhone open Settings > Privacy & Security > Developer Mode and choose \"Calcite\" from the computers list.";
-}
-- (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary<NSString *, NSNumber *> *)errorDict {
-    NSLog(@"[Pairing] Bonjour publish failed: %@", errorDict);
-    self.alert.title = @"Couldn't advertise";
-    self.alert.message = [NSString stringWithFormat:@"Allow Local Network access for Calcite in Settings > Privacy & Security > Local Network, then try again. (%@)", errorDict];
+static void bonjourReply(DNSServiceRef ref, DNSServiceFlags flags, DNSServiceErrorType err, const char *name,
+                         const char *type, const char *domain, void *ctx) {
+    CalciteOnDevicePairing *self = (__bridge CalciteOnDevicePairing *)ctx;
+    NSLog(@"[Pairing] Bonjour register reply: err=%d name=%s type=%s domain=%s", (int)err, name ?: "", type ?: "", domain ?: "");
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (err == kDNSServiceErr_NoError) {
+            self.alert.title = @"Ready to pair";
+            self.alert.message = @"On this iPhone open Settings > Privacy & Security > Developer Mode and choose \"Calcite\" from the computers list.";
+        } else {
+            self.alert.title = @"Couldn't advertise";
+            self.alert.message = [NSString stringWithFormat:@"Bonjour error %d.\n\nIf the Local Network prompt appeared, allow it. Otherwise open Settings > Privacy & Security > Local Network and turn on Calcite, then try again.", (int)err];
+        }
+    });
 }
 #endif
 
@@ -74,17 +81,32 @@ static void pinShown(const char *msg, void *ctx) {
     p.presenter = presenter;
     current = p;
 
-    NSMutableDictionary *txt = [NSMutableDictionary new];
+    // TXT record via the C API so we get exact errors for bad keys/values.
+    TXTRecordRef txtRef;
+    uint8_t txtBuf[1300];
+    TXTRecordCreate(&txtRef, sizeof(txtBuf), txtBuf);
     for (size_t i = 0; i < calcite_pairing_txt_count(session); i++) {
         const char *k = calcite_pairing_txt_key(session, i), *v = calcite_pairing_txt_value(session, i);
-        if (k && v) txt[@(k)] = [@(v) dataUsingEncoding:NSUTF8StringEncoding];
+        if (!k || !v) continue;
+        DNSServiceErrorType te = TXTRecordSetValue(&txtRef, k, (uint8_t)MIN(strlen(v), 255), v);
+        NSLog(@"[Pairing] TXT %s (%zu bytes) -> %d", k, strlen(v), (int)te);
     }
-    p.service = [[NSNetService alloc] initWithDomain:@"" type:@"_remotepairing-pairable-host._tcp."
-        name:@(calcite_pairing_service_name(session)) port:calcite_pairing_port(session)];
-    [p.service setTXTRecordData:[NSNetService dataFromTXTRecordDictionary:txt]];
-    p.service.delegate = p;
-    NSLog(@"[Pairing] publishing %@ on port %d (%lu TXT records)", @(calcite_pairing_service_name(session)), (int)calcite_pairing_port(session), (unsigned long)txt.count);
-    [p.service publish];
+    const char *svcName = calcite_pairing_service_name(session);
+    uint16_t port = calcite_pairing_port(session);
+    NSLog(@"[Pairing] publishing %s on port %d (TXT %d bytes)", svcName, (int)port, (int)TXTRecordGetLength(&txtRef));
+    DNSServiceErrorType rc = DNSServiceRegister(&p->_bonjour, 0, kDNSServiceInterfaceIndexAny, svcName,
+        "_remotepairing-pairable-host._tcp", NULL, NULL, htons(port),
+        TXTRecordGetLength(&txtRef), TXTRecordGetBytesPtr(&txtRef), bonjourReply, (__bridge void *)p);
+    TXTRecordDeallocate(&txtRef);
+    NSLog(@"[Pairing] DNSServiceRegister returned %d", (int)rc);
+    if (rc == kDNSServiceErr_NoError) {
+        DNSServiceSetDispatchQueue(p.bonjour, dispatch_get_main_queue());
+    } else {
+        showDialog(@"Couldn't advertise", [NSString stringWithFormat:@"Bonjour error %d. Allow Local Network for Calcite in Settings > Privacy & Security > Local Network.", (int)rc]);
+        calcite_pairing_free(session);
+        current = nil;
+        return;
+    }
 
     p.alert = [UIAlertController alertControllerWithTitle:@"Pair this iPhone"
         message:@"Open Settings > Privacy & Security > Developer Mode on this iPhone and choose \"Calcite\" from the list of computers. A code will appear here.\n\nAllow Local Network access if asked."
@@ -102,7 +124,7 @@ static void pinShown(const char *msg, void *ctx) {
         if (bytes) calcite_pairing_bytes_free(bytes, len);
         if (error) calcite_pairing_string_free(error);
         dispatch_async(dispatch_get_main_queue(), ^{
-            [p.service stop];
+            if (p.bonjour) { DNSServiceRefDeallocate(p.bonjour); p.bonjour = NULL; }
             calcite_pairing_free(p.session);
             p.session = NULL;
             current = nil;

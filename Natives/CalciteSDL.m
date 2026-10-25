@@ -279,5 +279,9 @@ void CalciteSDL_preseedHints(void) {
     if (!setHint) return;
     setHint("SDL_ORIENTATIONS", "LandscapeLeft LandscapeRight");
     setHint("SDL_ENABLE_SCREEN_KEYBOARD", "0");
+    // Minecraft 26.x loads Vulkan through SDL. Left alone, SDL's dlopen("libMoltenVK.dylib") finds the
+    // old 1.2.9 build in Frameworks/ whose shader translator can't compile 26.3's shaders; point it at 1.4.2.
+    NSString *mvk = [NSString stringWithFormat:@"%@/Frameworks341/libMoltenVK.dylib", NSBundle.mainBundle.bundlePath];
+    setHint("SDL_VULKAN_LIBRARY", mvk.UTF8String);
     NSLog(@"[CalciteSDL] preseeded SDL hints");
 }

@@ -280,15 +280,7 @@
     else if ([k isEqualToString:@"restore"]) [CalciteWorldBackup presentRestoreFrom:self];
     else if ([k isEqualToString:@"health"]) [CalciteHealthCheck presentFrom:self];
     else if ([k isEqualToString:@"settings"]) {
-        UITableView *table = sidebarViewController.tableView;
-        for (NSInteger i = 0; i < [table numberOfRowsInSection:0]; i++) {
-            UITableViewCell *c = [table cellForRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0]];
-            if ([c.textLabel.text isEqualToString:localize(@"Settings", nil)] || [c.textLabel.text.lowercaseString containsString:@"setting"]) {
-                [table selectRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] animated:YES scrollPosition:UITableViewScrollPositionNone];
-                [sidebarViewController tableView:table didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0]];
-                break;
-            }
-        }
+        [(id)self.splitViewController performSelector:NSSelectorFromString(@"showTabIndex:") withObject:@4];
     }
 }
 
