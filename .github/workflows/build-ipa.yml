@@ -27,7 +27,7 @@ jobs:
         run: |
           export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
           export BOOTJDK="$JAVA_HOME/bin"
-          gmake -j"$(sysctl -n hw.ncpu)" dsym package PLATFORM=2 RELEASE=1 RUNNER=1
+          gmake -j"$(sysctl -n hw.ncpu)" dsym package PLATFORM=2 RELEASE=1
       - name: Collect IPA
         run: |
           mkdir -p out
