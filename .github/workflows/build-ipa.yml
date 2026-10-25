@@ -28,7 +28,18 @@ jobs:
           distribution: zulu
           java-version: "8"
       - name: Tools
-        run: brew install make ldid cmake ninja
+        run: brew install make ldid cmake ninja xcodegen
+      - name: Build StikJIT (built-in JIT engine, MPL-2.0)
+        run: |
+          git clone --depth 1 --branch 1.9.0 https://github.com/StikDebug/StikJIT "$RUNNER_TEMP/StikJIT"
+          cd "$RUNNER_TEMP/StikJIT"
+          xcodegen generate
+          xcodebuild archive -scheme StikJIT -destination 'generic/platform=iOS' \
+            -archivePath build/StikJIT BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          mkdir -p "$GITHUB_WORKSPACE/depends"
+          cp -R build/StikJIT.xcarchive/Products/Library/Frameworks/StikJIT.framework "$GITHUB_WORKSPACE/depends/"
+          ls "$GITHUB_WORKSPACE/depends/StikJIT.framework"
       - name: Build
         run: |
           export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
