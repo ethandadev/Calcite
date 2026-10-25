@@ -6,6 +6,7 @@
 #import "LauncherMenuViewController.h"
 #import "CalciteCrashExplainer.h"
 #import "CalcitePerformancePack.h"
+#import "CalciteModBrowser.h"
 #import "CalciteWorldBackup.h"
 #import "LauncherNewsViewController.h"
 #import "LauncherPreferences.h"
@@ -95,6 +96,13 @@
           title:@"Performance Pack"
           imageName:@"bolt.fill" action:^{
         [CalcitePerformancePack installForSelectedProfileFrom:self];
+    }]];
+
+    [self.options addObject:
+     (id)[LauncherMenuCustomItem
+          title:@"Mod Browser"
+          imageName:@"puzzlepiece.extension.fill" action:^{
+        [CalciteModBrowser presentFrom:self];
     }]];
 
     // TODO: Finish log-uploading service integration

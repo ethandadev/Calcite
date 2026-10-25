@@ -173,6 +173,7 @@ add_executable(AngelAuraAmethyst
   CalciteBuiltInJIT.m
   CalciteCrashExplainer.m
   CalciteKeyboardView.m
+    CalciteModBrowser.m
   CalcitePerformancePack.m
   CalciteWorldBackup.m
   TrackedTextField.m
