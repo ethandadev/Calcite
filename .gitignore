@@ -20,3 +20,5 @@ entitlements.codesign.xml
 out/
 *.ipa
 Natives/pairing/*.a
+Natives/resources/Frameworks341/
+JavaApp/build341/

@@ -379,6 +379,11 @@ payload: native dep_mg java jre assets helper
 	cp $(SOURCEDIR)/JavaApp/build/*.jar $(WORKINGDIR)/AngelAuraAmethyst.app/libs/ || exit 1
 	cp -R $(SOURCEDIR)/JavaApp/libs/caciocavallo/* $(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo || exit 1
 	cp -R $(SOURCEDIR)/JavaApp/libs/caciocavallo17/* $(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo17 || exit 1
+	if [ -d $(SOURCEDIR)/JavaApp/build341 ]; then \
+		mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/libs341 && \
+		cp -R $(SOURCEDIR)/JavaApp/libs/others/* $(WORKINGDIR)/AngelAuraAmethyst.app/libs341/ && \
+		cp $(SOURCEDIR)/JavaApp/build341/*.jar $(WORKINGDIR)/AngelAuraAmethyst.app/libs341/ || exit 1; \
+	fi
 	$(call METHOD_DIRCHECK,$(OUTPUTDIR)/Payload)
 	cp -R $(WORKINGDIR)/AngelAuraAmethyst.app $(OUTPUTDIR)/Payload
 	if [ '$(SLIMMED_ONLY)' != '1' ]; then \
