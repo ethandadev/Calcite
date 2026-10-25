@@ -170,6 +170,7 @@ add_executable(AngelAuraAmethyst
   SurfaceViewController+ExternalDisplay.m
   SurfaceViewController+LogView.m
   SurfaceViewController+Navigation.m
+  CalciteCrashExplainer.m
   CalciteKeyboardView.m
   TrackedTextField.m
   egl_bridge.m
