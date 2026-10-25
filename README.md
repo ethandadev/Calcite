@@ -24,9 +24,9 @@ Changes so far:
 ## What Calcite adds on top of Amethyst
 - Java 25 / automatic Java selection fix (Minecraft 26.x works)
 - Compact on-screen keyboard (Settings > Controls > Compact keyboard)
-- Control layouts: Calcite - Minimal / Combat / Builder / Left-handed (pick per profile)
+- Control layouts: Minimal, Combat, Builder, Left-handed, PvP, Survival, Redstone, Parkour, Left Combat (pick per profile)
 - Crash explainer: plain-English cause after a bad session
-- Automatic world backups (zips to `backups/`, keeps the newest 3 per world)
+- Automatic world backups (zips to `backups/`, keeps the newest 3 per world) and a Restore World menu item
 - Performance Pack: one tap installs Sodium, Lithium, FerriteCore and friends for Fabric profiles
 - Mod Browser: search Modrinth, install with required dependencies, enable/disable/delete installed mods
 - Skin Manager: upload or reset your skin (Microsoft accounts)

@@ -705,4 +705,81 @@ void generateCalciteControlPresets() {
         {"Keyboard",      SPECIALBTN_KEYBOARD,   NO,  0.14, NO,  0.02, 64, 32, NO,  NO},
     };
     writeCalcitePreset(@"Calcite - Left-handed", lefty, sizeof(lefty)/sizeof(*lefty), YES, 190);
+
+    // PvP: attack/use/jump clustered under the right thumb, sprint toggle on the left
+    CalcitePresetButton pvp[] = {
+        {"Attack",        SPECIALBTN_MOUSEPRI,   YES, 0.97, YES, 0.50, 100, 100, NO,  YES},
+        {"Use",           SPECIALBTN_MOUSESEC,   YES, 0.78, YES, 0.70, 80, 80, NO,  YES},
+        {"Jump",          GLFW_KEY_SPACE,        YES, 0.97, YES, 0.97, 80, 80, NO,  NO},
+        {"Sprint",        GLFW_KEY_LEFT_CONTROL, NO,  0.03, YES, 0.52, 64, 64, YES, NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   YES, 0.78, YES, 0.97, 64, 64, NO,  NO},
+        {"Swap",          GLFW_KEY_F,            YES, 0.62, YES, 0.70, 52, 52, NO,  NO},
+        {"Drop",          GLFW_KEY_Q,            YES, 0.62, YES, 0.97, 52, 52, NO,  NO},
+        {"Chat",          GLFW_KEY_T,            NO,  0.26, NO,  0.02, 56, 32, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - PvP", pvp, sizeof(pvp)/sizeof(*pvp), NO, 190);
+
+    // Survival: everything you need day to day
+    CalcitePresetButton survival[] = {
+        {"Attack",        SPECIALBTN_MOUSEPRI,   YES, 0.97, YES, 0.58, 84, 84, NO,  YES},
+        {"Use",           SPECIALBTN_MOUSESEC,   YES, 0.80, YES, 0.58, 84, 84, NO,  YES},
+        {"Jump",          GLFW_KEY_SPACE,        YES, 0.97, YES, 0.97, 76, 76, NO,  NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   YES, 0.80, YES, 0.97, 64, 64, YES, NO},
+        {"Sprint",        GLFW_KEY_LEFT_CONTROL, NO,  0.03, YES, 0.58, 60, 60, YES, NO},
+        {"Inv",           GLFW_KEY_E,            YES, 0.64, YES, 0.97, 52, 52, NO,  NO},
+        {"Drop",          GLFW_KEY_Q,            YES, 0.64, YES, 0.58, 52, 52, NO,  NO},
+        {"Pick",          SPECIALBTN_MOUSEMID,   YES, 0.64, YES, 0.78, 52, 52, NO,  NO},
+        {"Chat",          GLFW_KEY_T,            NO,  0.26, NO,  0.02, 56, 32, NO,  NO},
+        {"3rd|Person",    GLFW_KEY_F5,           NO,  0.38, NO,  0.02, 64, 32, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+        {"Keyboard",      SPECIALBTN_KEYBOARD,   NO,  0.14, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Survival", survival, sizeof(survival)/sizeof(*survival), NO, 180);
+
+    // Redstone/Technical: debug, tab, chat, command, screenshot
+    CalcitePresetButton tech[] = {
+        {"Break",         SPECIALBTN_MOUSEPRI,   YES, 0.97, YES, 0.58, 80, 80, NO,  YES},
+        {"Place",         SPECIALBTN_MOUSESEC,   YES, 0.80, YES, 0.58, 80, 80, NO,  YES},
+        {"Jump|Fly",      GLFW_KEY_SPACE,        YES, 0.97, YES, 0.97, 72, 72, NO,  NO},
+        {"Down",          GLFW_KEY_LEFT_SHIFT,   YES, 0.80, YES, 0.97, 72, 72, YES, NO},
+        {"F3",            GLFW_KEY_F3,           NO,  0.02, NO,  0.14, 52, 36, NO,  NO},
+        {"F1",            GLFW_KEY_F1,           NO,  0.02, NO,  0.26, 52, 36, NO,  NO},
+        {"Shot",          GLFW_KEY_F2,           NO,  0.02, NO,  0.38, 52, 36, NO,  NO},
+        {"Tab",           GLFW_KEY_TAB,          NO,  0.14, NO,  0.14, 52, 36, NO,  NO},
+        {"Chat",          GLFW_KEY_T,            NO,  0.14, NO,  0.26, 52, 36, NO,  NO},
+        {"/",             GLFW_KEY_SLASH,        NO,  0.14, NO,  0.38, 52, 36, NO,  NO},
+        {"Inv",           GLFW_KEY_E,            YES, 0.64, YES, 0.97, 52, 52, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+        {"Keyboard",      SPECIALBTN_KEYBOARD,   NO,  0.14, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Redstone", tech, sizeof(tech)/sizeof(*tech), NO, 170);
+
+    // Parkour: large jump/sprint/sneak for precise movement
+    CalcitePresetButton parkour[] = {
+        {"JUMP",          GLFW_KEY_SPACE,        YES, 0.97, YES, 0.60, 110, 110, NO, NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   YES, 0.97, YES, 0.97, 84, 84, YES, NO},
+        {"Sprint",        GLFW_KEY_LEFT_CONTROL, YES, 0.74, YES, 0.97, 84, 84, YES, NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Parkour", parkour, sizeof(parkour)/sizeof(*parkour), NO, 200);
+
+    // Left-handed Combat
+    CalcitePresetButton lcombat[] = {
+        {"Attack",        SPECIALBTN_MOUSEPRI,   NO,  0.03, YES, 0.60, 92, 92, NO,  YES},
+        {"Use",           SPECIALBTN_MOUSESEC,   NO,  0.20, YES, 0.78, 76, 76, NO,  YES},
+        {"Jump",          GLFW_KEY_SPACE,        NO,  0.03, YES, 0.97, 76, 76, NO,  NO},
+        {"Sprint",        GLFW_KEY_LEFT_CONTROL, NO,  0.20, YES, 0.97, 64, 64, YES, NO},
+        {"Sneak",         GLFW_KEY_LEFT_SHIFT,   YES, 0.97, YES, 0.60, 64, 64, YES, NO},
+        {"Drop",          GLFW_KEY_Q,            NO,  0.34, YES, 0.60, 56, 56, NO,  NO},
+        {"Swap",          GLFW_KEY_F,            NO,  0.34, YES, 0.78, 56, 56, NO,  NO},
+        {"Inv",           GLFW_KEY_E,            NO,  0.34, YES, 0.97, 56, 56, NO,  NO},
+        {"Pause",         GLFW_KEY_ESCAPE,       YES, 0.98, NO,  0.02, 64, 32, NO,  NO},
+        {"Menu",          SPECIALBTN_MENU,       NO,  0.02, NO,  0.02, 64, 32, NO,  NO},
+    };
+    writeCalcitePreset(@"Calcite - Left Combat", lcombat, sizeof(lcombat)/sizeof(*lcombat), YES, 190);
 }
