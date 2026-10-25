@@ -1,6 +1,7 @@
 #import "SceneDelegate.h"
 #import "ios_uikit_bridge.h"
 #import "utils.h"
+#import "CalciteTheme.h"
 
 extern UIWindow *mainWindow;
 
@@ -16,6 +17,7 @@ extern UIWindow *mainWindow;
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
     self.window.frame = windowScene.coordinateSpace.bounds;
     mainWindow = self.window;
+    [CalciteTheme applyToWindow:self.window];
     launchInitialViewController(self.window);
     [self.window makeKeyAndVisible];
 }

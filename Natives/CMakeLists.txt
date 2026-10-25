@@ -175,6 +175,8 @@ add_executable(AngelAuraAmethyst
   CalciteKeyboardView.m
     CalciteModBrowser.m
     CalciteSkinManager.m
+    CalciteTheme.m
+    CalciteHomeViewController.m
     CalciteHealthCheck.m
     CalciteOnDevicePairing.m
   CalcitePerformancePack.m
