@@ -5,5 +5,6 @@
 @interface CalciteMotion : NSObject
 + (void)install;
 + (void)crossfadeLabel:(UILabel *)label to:(NSString *)text;
++ (void)bounceSymbol:(UIImageView *)iv;
 + (void)bounceSymbolIn:(UIView *)root;
 @end

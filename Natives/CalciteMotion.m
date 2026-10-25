@@ -1,4 +1,5 @@
 #import <objc/runtime.h>
+#import <objc/message.h>
 #import "CalciteMotion.h"
 #import "CalciteTheme.h"
 
@@ -61,14 +62,19 @@ static void springTo(UIView *v, CGFloat scale, CGFloat alpha, BOOL pressing) {
                     animations:^{ label.text = text; } completion:nil];
 }
 
+// NSSymbolBounceEffect lives in the Symbols framework, which the app doesn't link; look it up at runtime.
++ (void)bounceSymbol:(UIImageView *)iv {
+    Class c = NSClassFromString(@"NSSymbolBounceEffect");
+    SEL effectSel = NSSelectorFromString(@"effect"), addSel = NSSelectorFromString(@"addSymbolEffect:");
+    if (!c || ![c respondsToSelector:effectSel] || ![iv respondsToSelector:addSel]) return;
+    id effect = ((id (*)(id, SEL))objc_msgSend)(c, effectSel);
+    ((void (*)(id, SEL, id))objc_msgSend)(iv, addSel, effect);
+}
+
 + (void)bounceSymbolIn:(UIView *)root {
-    if (@available(iOS 17.0, *)) {
-        for (UIView *v in root.subviews) {
-            if ([v isKindOfClass:UIImageView.class] && ((UIImageView *)v).image.isSymbolImage) {
-                [(UIImageView *)v addSymbolEffect:[NSSymbolBounceEffect effect]];
-            }
-            [self bounceSymbolIn:v];
-        }
+    for (UIView *v in root.subviews) {
+        if ([v isKindOfClass:UIImageView.class] && ((UIImageView *)v).image.isSymbolImage) [self bounceSymbol:(UIImageView *)v];
+        [self bounceSymbolIn:v];
     }
 }
 

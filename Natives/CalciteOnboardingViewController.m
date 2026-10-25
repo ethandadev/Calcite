@@ -1,6 +1,7 @@
 #import "CalciteOnboardingViewController.h"
 #import "CalciteOnDevicePairing.h"
 #import "CalciteTheme.h"
+#import "CalciteMotion.h"
 
 static NSString *const kOnboarded = @"calcite.onboarded.v1";
 
@@ -308,9 +309,7 @@ static NSString *const kOnboarded = @"calcite.onboarded.v1";
         if (!sym && [v isKindOfClass:UIVisualEffectView.class]) sym = [((UIVisualEffectView *)v).contentView viewWithTag:99];
         if ([sym isKindOfClass:UIImageView.class]) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((0.35 + 0.09 * i) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                if (@available(iOS 17.0, *)) {
-                    [(UIImageView *)sym addSymbolEffect:[NSSymbolBounceEffect effect]];
-                }
+                [CalciteMotion bounceSymbol:(UIImageView *)sym];
             });
         }
         // feature rows: bounce their glass tile too
@@ -319,7 +318,7 @@ static NSString *const kOnboarded = @"calcite.onboarded.v1";
                 UIView *s2 = [((UIVisualEffectView *)sub).contentView viewWithTag:99];
                 if ([s2 isKindOfClass:UIImageView.class]) {
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((0.5 + 0.09 * i) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                        if (@available(iOS 17.0, *)) { [(UIImageView *)s2 addSymbolEffect:[NSSymbolBounceEffect effect]]; }
+                        [CalciteMotion bounceSymbol:(UIImageView *)s2];
                     });
                 }
             }
