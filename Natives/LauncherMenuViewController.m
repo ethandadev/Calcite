@@ -4,6 +4,7 @@
 #import "ALTServerConnection.h"
 #import "LauncherNavigationController.h"
 #import "LauncherMenuViewController.h"
+#import "CalciteCrashExplainer.h"
 #import "LauncherNewsViewController.h"
 #import "LauncherPreferences.h"
 #import "LauncherPreferencesViewController.h"
@@ -48,6 +49,14 @@
 @implementation LauncherMenuViewController
 
 #define contentNavigationController ((LauncherNavigationController *)self.splitViewController.viewControllers[1])
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    // Calcite: explain why the last session ended badly (once per log)
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [CalciteCrashExplainer presentIfNeededFrom:self];
+    });
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
