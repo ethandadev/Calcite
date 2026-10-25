@@ -13,6 +13,13 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.15.1",
+          "date": "2026-10-25",
+          "localizedDescription": "Fixes a launch crash in 0.15.0. Library: tap to select an instance. Settings: coloured icon tiles.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.15.1/Calcite.ipa",
+          "size": 212848405
+        },
+        {
           "version": "0.15.0",
           "date": "2026-10-25",
           "localizedDescription": "Redesign: floating tab bar, Discover and Tools hubs, welcome tour, motion everywhere. Calcite branding throughout. Pairing diagnostics. 26.3 SDL hint fix.",
