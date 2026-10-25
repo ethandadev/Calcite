@@ -10,12 +10,13 @@ for Amethyst-iOS. Sideload the unsigned IPA with SideStore.
 - The **Build IPA** workflow produces an unsigned `Calcite.ipa` artifact. Open Actions, run it, download, sideload.
 
 ## License
-AGPL-3.0 (see CREDITS.md). The LICENSE file is added from GitHub's license picker.
+LGPL-3.0 for the Amethyst-derived engine (see LICENSE); Calcite-original code may be AGPL-3.0 (see CREDITS.md).
 
-## How the engine works
-Calcite builds on the Amethyst-iOS native engine. Instead of vendoring it, CI fetches the commit pinned in
-`engine/UPSTREAM_REF`, applies `engine/patches/*.patch`, and builds. Bumping upstream = change the ref and re-test.
+## Engine
+Calcite is a hard fork of Amethyst-iOS (LGPL-3.0), imported at upstream commit `f98c413` and now owned here, so it
+can change freely without tracking upstream. The original README is in `docs/AMETHYST_README.md`.
+MobileGlues stays a git submodule (large, unmodified); the small libraries are vendored.
 
-Patches so far:
-- `0001-java-select-never-downgrade`: fixes the Minecraft 26.x crash. Java 25 was missing from the default runtime
-  list and the selector silently kept Java 17. It now merges bundled runtimes and never picks an older Java.
+Changes so far:
+- Java selection fix for Minecraft 26.x: Java 25 was missing from the default runtime list and the selector silently
+  kept Java 17. It now merges bundled runtimes and never picks an older Java.
