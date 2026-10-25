@@ -252,6 +252,7 @@
     }
 
     cell.textLabel.text = [self.options[indexPath.row] title];
+    [CalciteTheme styleSidebarCell:cell];
     
     UIImage *origImage = [UIImage systemImageNamed:[self.options[indexPath.row]
         performSelector:@selector(imageName)]];

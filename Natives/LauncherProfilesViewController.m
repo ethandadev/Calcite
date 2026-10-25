@@ -1,3 +1,4 @@
+#import "CalciteTheme.h"
 #import "LauncherMenuViewController.h"
 #import "LauncherNavigationController.h"
 #import "LauncherPreferences.h"
@@ -179,6 +180,7 @@ typedef NS_ENUM(NSUInteger, LauncherProfilesTableSection) {
     NSMutableDictionary *profile = PLProfiles.current.profiles.allValues[row];
 
     cell.textLabel.text = profile[@"name"];
+    [CalciteTheme styleCardCell:cell];
     cell.detailTextLabel.text = profile[@"lastVersionId"];
     cell.imageView.layer.magnificationFilter = kCAFilterNearest;
 

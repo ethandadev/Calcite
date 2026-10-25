@@ -34,6 +34,10 @@ echo "$MVK_SHA256  $WORK/mvk.tar" | shasum -a 256 -c --status
 MVK_BIN="MoltenVK/MoltenVK/dynamic/MoltenVK.xcframework/ios-arm64/MoltenVK.framework/MoltenVK"
 tar -xf "$WORK/mvk.tar" -C "$WORK" "$MVK_BIN"
 cp "$WORK/$MVK_BIN" "$OUT/libMoltenVK.dylib"
+# The app already ships an older MoltenVK (1.2.9). dyld treats two images with the same install
+# name as one, so give this copy its own identity or the old one silently wins.
+install_name_tool -id @rpath/CalciteMoltenVK142.dylib "$OUT/libMoltenVK.dylib"
+strings "$OUT/libMoltenVK.dylib" | grep -m1 -E '^1\.4\.' || true
 
 echo "== SPIRV-Cross and shaderc (built from source)"
 git clone --depth 1 "$BASE" "$WORK/flame"

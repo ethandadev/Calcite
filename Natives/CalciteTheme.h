@@ -6,6 +6,12 @@
 + (UIColor *)accentDeep;  // darker teal for gradients and pressed states
 + (UIColor *)cardBackground;
 + (void)applyToWindow:(UIWindow *)window;
++ (void)applyAppearance;
++ (UIColor *)background;
++ (UIColor *)surface;
++ (UIFont *)roundedFont:(CGFloat)size weight:(UIFontWeight)weight;
++ (void)styleSidebarCell:(UITableViewCell *)cell;
++ (void)styleCardCell:(UITableViewCell *)cell;
 /// A tappable rounded card with a symbol, title and subtitle.
 + (UIControl *)actionCardWithSymbol:(NSString *)symbol title:(NSString *)title subtitle:(NSString *)subtitle;
 @end
