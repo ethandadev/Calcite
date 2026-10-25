@@ -5,6 +5,7 @@
 #import "LauncherNavigationController.h"
 #import "LauncherMenuViewController.h"
 #import "CalciteCrashExplainer.h"
+#import "CalcitePerformancePack.h"
 #import "CalciteWorldBackup.h"
 #import "LauncherNewsViewController.h"
 #import "LauncherPreferences.h"
@@ -89,6 +90,13 @@
         [contentNavigationController performSelector:@selector(enterModInstaller)];
     }]];
     
+    [self.options addObject:
+     (id)[LauncherMenuCustomItem
+          title:@"Performance Pack"
+          imageName:@"bolt.fill" action:^{
+        [CalcitePerformancePack installForSelectedProfileFrom:self];
+    }]];
+
     // TODO: Finish log-uploading service integration
     [self.options addObject:
      (id)[LauncherMenuCustomItem

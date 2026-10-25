@@ -172,6 +172,7 @@ add_executable(AngelAuraAmethyst
   SurfaceViewController+Navigation.m
   CalciteCrashExplainer.m
   CalciteKeyboardView.m
+  CalcitePerformancePack.m
   CalciteWorldBackup.m
   TrackedTextField.m
   egl_bridge.m
