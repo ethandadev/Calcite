@@ -4,6 +4,49 @@
 #import "ios_uikit_bridge.h"
 #import "utils.h"
 
+@interface CalciteInstalledMods : UITableViewController
+@property(nonatomic) NSString *modsDir;
+@property(nonatomic) NSMutableArray<NSString *> *files;
+@end
+
+@implementation CalciteInstalledMods
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = @"Installed mods";
+    [self reload];
+}
+- (void)reload {
+    NSArray *all = [NSFileManager.defaultManager contentsOfDirectoryAtPath:self.modsDir error:nil] ?: @[];
+    self.files = [[all filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *f, id b) {
+        return [f hasSuffix:@".jar"] || [f hasSuffix:@".jar.disabled"];
+    }]] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)].mutableCopy;
+    [self.tableView reloadData];
+}
+- (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)s { return self.files.count; }
+- (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)ip {
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"f"] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"f"];
+    NSString *f = self.files[ip.row];
+    BOOL off = [f hasSuffix:@".disabled"];
+    c.textLabel.text = off ? [f stringByDeletingPathExtension] : f;
+    c.detailTextLabel.text = off ? @"Disabled (tap to enable)" : @"Enabled (tap to disable)";
+    c.textLabel.textColor = off ? UIColor.secondaryLabelColor : UIColor.labelColor;
+    return c;
+}
+- (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip {
+    NSString *f = self.files[ip.row];
+    NSString *to = [f hasSuffix:@".disabled"] ? [f stringByDeletingPathExtension] : [f stringByAppendingString:@".disabled"];
+    [NSFileManager.defaultManager moveItemAtPath:[self.modsDir stringByAppendingPathComponent:f]
+        toPath:[self.modsDir stringByAppendingPathComponent:to] error:nil];
+    [self reload];
+}
+- (void)tableView:(UITableView *)tv commitEditingStyle:(UITableViewCellEditingStyle)st forRowAtIndexPath:(NSIndexPath *)ip {
+    if (st != UITableViewCellEditingStyleDelete) return;
+    [NSFileManager.defaultManager removeItemAtPath:[self.modsDir stringByAppendingPathComponent:self.files[ip.row]] error:nil];
+    [self.files removeObjectAtIndex:ip.row];
+    [tv deleteRowsAtIndexPaths:@[ip] withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+@end
+
 @interface CalciteModBrowser ()
 @property(nonatomic) NSArray<NSDictionary *> *hits;
 @property(nonatomic) NSString *loader, *mcVersion, *modsDir;
@@ -43,6 +86,8 @@
     self.title = [NSString stringWithFormat:@"Mods · %@ %@", [self.loader capitalizedString], self.mcVersion];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
         target:self action:@selector(close)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Installed" style:UIBarButtonItemStylePlain
+        target:self action:@selector(showInstalled)];
     self.searchBar = [UISearchBar new];
     self.searchBar.placeholder = @"Search Modrinth";
     self.searchBar.delegate = self;
@@ -50,6 +95,12 @@
     [self.searchBar sizeToFit];
     self.tableView.tableHeaderView = self.searchBar;
     [self runSearch:@""];
+}
+
+- (void)showInstalled {
+    CalciteInstalledMods *vc = [[CalciteInstalledMods alloc] initWithStyle:UITableViewStylePlain];
+    vc.modsDir = self.modsDir;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)close { [self dismissViewControllerAnimated:YES completion:nil]; }
