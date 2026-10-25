@@ -31,7 +31,7 @@ jobs:
       - name: Collect IPA
         run: |
           mkdir -p out
-          cp artifacts/org.angelauramc.amethyst-*-ios.ipa out/Calcite.ipa
+          cp artifacts/dev.ethandadev.calcite-*-ios.ipa out/Calcite.ipa
       - uses: actions/upload-artifact@v4
         with:
           name: Calcite-ipa
