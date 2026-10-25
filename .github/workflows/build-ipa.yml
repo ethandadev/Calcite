@@ -1,8 +1,14 @@
 name: Build IPA
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: "Publish a GitHub release with this tag (e.g. v0.1.1). Leave empty for a plain build."
+        required: false
   push:
     tags: ["v*"]
+permissions:
+  contents: write
 jobs:
   ipa:
     runs-on: macos-26
@@ -36,3 +42,10 @@ jobs:
         with:
           name: Calcite-ipa
           path: out/Calcite.ipa
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.release }}"; [ -z "$TAG" ] && TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" out/Calcite.ipa --title "Calcite $TAG" --generate-notes || gh release upload "$TAG" out/Calcite.ipa --clobber
