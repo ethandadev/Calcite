@@ -38,12 +38,12 @@
         UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:19 weight:UIImageSymbolWeightSemibold];
         UIImageView *iv = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:items[i][@"symbol"] withConfiguration:cfg]];
         iv.contentMode = UIViewContentModeCenter;
-        iv.tag = 1;
+        iv.tag = 1001;
         UILabel *l = [UILabel new];
         l.text = items[i][@"title"];
         l.font = [CalciteTheme roundedFont:10.5 weight:UIFontWeightSemibold];
         l.textAlignment = NSTextAlignmentCenter;
-        l.tag = 2;
+        l.tag = 1002;
         [c addSubview:iv]; [c addSubview:l];
         [c addTarget:self action:@selector(tapped:) forControlEvents:UIControlEventTouchUpInside];
         [self.blur.contentView addSubview:c];
@@ -61,7 +61,7 @@
     CGFloat inset = 6, w = (self.bounds.size.width - inset * 2) / self.buttons.count, h = self.bounds.size.height - inset * 2;
     for (UIControl *c in self.buttons) {
         c.frame = CGRectMake(inset + w * c.tag, inset, w, h);
-        UIView *iv = [c viewWithTag:1], *l = [c viewWithTag:2];
+        UIView *iv = [c viewWithTag:1001], *l = [c viewWithTag:1002];
         iv.frame = CGRectMake(0, 6, w, 24);
         l.frame = CGRectMake(0, 31, w, 14);
     }
@@ -73,8 +73,8 @@
     for (UIControl *c in self.buttons) {
         BOOL sel = c.tag == self.selectedIndex;
         UIColor *col = sel ? [CalciteTheme accent] : UIColor.secondaryLabelColor;
-        ((UIImageView *)[c viewWithTag:1]).tintColor = col;
-        ((UILabel *)[c viewWithTag:2]).textColor = col;
+        ((UIImageView *)[c viewWithTag:1001]).tintColor = col;
+        ((UILabel *)[c viewWithTag:1002]).textColor = col;
     }
 }
 
