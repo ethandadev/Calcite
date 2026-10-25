@@ -1,5 +1,7 @@
 #import "CalciteHomeViewController.h"
 #import "CalciteTheme.h"
+#import "CalciteMotion.h"
+#import "CalciteOnboardingViewController.h"
 #import "CalciteBuiltInJIT.h"
 #import "CalciteModBrowser.h"
 #import "CalcitePerformancePack.h"
@@ -13,7 +15,7 @@
 #import "ios_uikit_bridge.h"
 #import "utils.h"
 
-@interface CalciteHomeViewController ()
+@interface CalciteHomeViewController () <UIScrollViewDelegate>
 @property(nonatomic) UILabel *profileLabel, *versionLabel, *greetingLabel;
 @property(nonatomic) UIStackView *chips;
 @property(nonatomic) UILabel *tipLabel;
@@ -50,6 +52,7 @@
     UIScrollView *scroll = [UIScrollView new];
     scroll.translatesAutoresizingMaskIntoConstraints = NO;
     scroll.alwaysBounceVertical = YES;
+    scroll.delegate = self;
     [self.view addSubview:scroll];
     UIStackView *root = [UIStackView new];
     root.axis = UILayoutConstraintAxisVertical;
@@ -149,6 +152,8 @@
         @[@"clock.arrow.circlepath", @"Restore World", @"Bring back a backup", @"restore"],
         @[@"checkmark.shield.fill", @"Health Check", @"Is everything set up?", @"health"],
         @[@"slider.horizontal.3", @"Settings", @"Controls, JIT, Java", @"settings"],
+        @[@"sparkles", @"Welcome Tour", @"Replay the intro", @"tour"],
+        @[@"ladybug.fill", @"Report a Bug", @"Open an issue on GitHub", @"bug"],
     ];
     UIStackView *grid = [UIStackView new];
     grid.axis = UILayoutConstraintAxisVertical;
@@ -214,7 +219,7 @@
     NSString *versionId = profile[@"lastVersionId"] ?: @"latest-release";
     NSString *user = BaseAuthenticator.current.authData[@"username"];
     self.greetingLabel.text = user ? [NSString stringWithFormat:@"WELCOME BACK, %@", user.uppercaseString] : @"WELCOME TO CALCITE";
-    self.profileLabel.text = name;
+    [CalciteMotion crossfadeLabel:self.profileLabel to:name];
     self.versionLabel.text = versionId;
 
     for (UIView *v in self.chips.arrangedSubviews) [v removeFromSuperview];
@@ -248,8 +253,28 @@
     }
 }
 
+// Stretchy hero: pulling down scales it up, scrolling away fades and shrinks it slightly.
+- (void)scrollViewDidScroll:(UIScrollView *)sv {
+    UIView *hero = [self.view viewWithTag:7];
+    if (!hero) return;
+    CGFloat y = sv.contentOffset.y + sv.adjustedContentInset.top;
+    if (y < 0) {
+        CGFloat k = 1 + MIN(0.12, -y / 800);
+        hero.transform = CGAffineTransformConcat(CGAffineTransformMakeScale(k, k), CGAffineTransformMakeTranslation(0, y / 2));
+    } else {
+        CGFloat k = 1 - MIN(0.06, y / 1500);
+        hero.transform = CGAffineTransformMakeScale(k, k);
+    }
+}
+
 - (void)cardTapped:(UIControl *)card {
     NSString *k = card.accessibilityIdentifier;
+    [CalciteMotion bounceSymbolIn:card];
+    if ([k isEqualToString:@"tour"]) { [CalciteOnboardingViewController presentFrom:self force:YES]; return; }
+    if ([k isEqualToString:@"bug"]) {
+        [UIApplication.sharedApplication openURL:[NSURL URLWithString:@"https://github.com/ethandadev/Calcite/issues/new"] options:@{} completionHandler:nil];
+        return;
+    }
     if ([k isEqualToString:@"mods"]) [CalciteModBrowser presentFrom:self];
     else if ([k isEqualToString:@"perf"]) [CalcitePerformancePack installForSelectedProfileFrom:self];
     else if ([k isEqualToString:@"skin"]) [CalciteSkinManager presentFrom:self];

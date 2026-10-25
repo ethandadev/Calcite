@@ -1,5 +1,6 @@
 #import <objc/runtime.h>
 #import "CalciteTheme.h"
+#import "CalciteMotion.h"
 
 @implementation CalciteTheme
 
@@ -75,6 +76,7 @@
 
 + (void)applyToWindow:(UIWindow *)window {
     [self applyAppearance];
+    [CalciteMotion install];
     window.tintColor = [self accent];
     window.backgroundColor = [self background];
 }

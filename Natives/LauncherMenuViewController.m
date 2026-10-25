@@ -13,6 +13,7 @@
 #import "LauncherNewsViewController.h"
 #import "CalciteHomeViewController.h"
 #import "CalciteTheme.h"
+#import "CalciteOnboardingViewController.h"
 #import "LauncherPreferences.h"
 #import "LauncherPreferencesViewController.h"
 #import "LauncherProfilesViewController.h"
@@ -64,6 +65,7 @@
         [CalciteCrashExplainer presentIfNeededFrom:self];
     });
     [CalciteWorldBackup backupChangedWorldsInBackground];
+    [CalciteOnboardingViewController presentFrom:self force:NO];
 }
 
 - (void)viewDidLoad {
