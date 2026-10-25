@@ -6,22 +6,29 @@ on:
 jobs:
   ipa:
     runs-on: macos-15
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Install XcodeGen
-        run: brew install xcodegen
-      - name: Generate project
-        run: xcodegen generate
-      - name: Build unsigned app
+      - name: Prepare engine (Amethyst-iOS + Calcite patches)
+        run: scripts/prepare-engine.sh
+      - name: JDK 8 (boot JDK for the Java app build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "8"
+      - name: Tools
+        run: brew install make ldid cmake ninja
+      - name: Build
+        working-directory: Engine
         run: |
-          xcodebuild -project Calcite.xcodeproj -scheme Calcite \
-            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
-            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
-      - name: Package IPA
+          export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
+          export BOOTJDK="$JAVA_HOME/bin"
+          gmake -j"$(sysctl -n hw.ncpu)" dsym package PLATFORM=2 RELEASE=1 RUNNER=1
+      - name: Collect IPA
         run: |
-          mkdir Payload && cp -R build/Build/Products/Release-iphoneos/Calcite.app Payload/
-          zip -qry Calcite.ipa Payload
+          mkdir -p out
+          cp Engine/artifacts/org.angelauramc.amethyst-*-ios.ipa out/Calcite.ipa
       - uses: actions/upload-artifact@v4
         with:
           name: Calcite-ipa
-          path: Calcite.ipa
+          path: out/Calcite.ipa
