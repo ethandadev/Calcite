@@ -122,7 +122,7 @@ extern NSMutableDictionary *prefDict;
     // own column containers would otherwise cover it, and the toolbar isn't in the hierarchy yet here.
 
     detail.delegate = self;
-    detail.additionalSafeAreaInsets = UIEdgeInsetsMake(0, 0, 76, 0);
+    detail.additionalSafeAreaInsets = UIEdgeInsetsMake(0, 0, 72, 0);
     [self showTab:0 animated:NO];
 }
 
@@ -169,18 +169,39 @@ extern NSMutableDictionary *prefDict;
     UIWindow *window = self.view.window;
     if (!window || !self.tabBar) return;
     if (self.tabBar.superview != window) [window addSubview:self.tabBar];
-    CGFloat w = MIN(window.bounds.size.width - 32, 420), h = 62;
-    UIToolbar *tb = [self contentNav].toolbar;
+    CGFloat h = 58;
+    UINavigationController *nav = [self contentNav];
+    UIToolbar *tb = nav.toolbar;
+    // Line the bar up with the Play bar: same left edge as the version pill, same right edge as Play.
+    CGFloat left = 16, right = window.bounds.size.width - 16;
+    @try {
+        UIView *field = [nav valueForKey:@"versionTextField"];
+        UIBarButtonItem *play = [nav valueForKey:@"buttonInstallItem"];
+        UIView *fieldBox = field.superview ?: field;
+        if (fieldBox.window) {
+            CGFloat l = [fieldBox convertRect:fieldBox.bounds toView:window].origin.x;
+            if (l > 0 && l < window.bounds.size.width / 3) left = l;
+        }
+        UIView *playView = nil;
+        if ([play respondsToSelector:NSSelectorFromString(@"buttonGlassView")]) playView = [play valueForKey:@"buttonGlassView"];
+        if (!playView) playView = [play valueForKey:@"view"];
+        if (playView.window) {
+            CGFloat r = CGRectGetMaxX([playView convertRect:playView.bounds toView:window]);
+            if (r > window.bounds.size.width * 2 / 3 && r <= window.bounds.size.width) right = r;
+        }
+    } @catch (NSException *e) {}
+    CGFloat w = MIN(right - left, 460);
+    CGFloat x = left + ((right - left) - w) / 2;
     CGFloat y;
     if (tb.window) {
         CGRect r = [tb convertRect:tb.bounds toView:window];
-        y = r.origin.y - h - 10;
+        y = r.origin.y - h - 8;
     } else {
-        y = window.bounds.size.height - window.safeAreaInsets.bottom - 49 - h - 10;
+        y = window.bounds.size.height - window.safeAreaInsets.bottom - 49 - h - 8;
     }
     CGAffineTransform t = self.tabBar.transform;
     self.tabBar.transform = CGAffineTransformIdentity;
-    self.tabBar.frame = CGRectMake((window.bounds.size.width - w) / 2, y, w, h);
+    self.tabBar.frame = CGRectMake(x, y, w, h);
     self.tabBar.transform = t;
     [window bringSubviewToFront:self.tabBar];
 }

@@ -21,8 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [CalciteTheme background];
-    self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAlways;
-    self.navigationController.navigationBar.prefersLargeTitles = YES;
+    self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever; // match Home/Library/Settings
     self.navigationItem.rightBarButtonItem = [sidebarViewController drawAccountButton];
 
     UIScrollView *scroll = [UIScrollView new];

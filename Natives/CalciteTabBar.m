@@ -62,8 +62,8 @@
     for (UIControl *c in self.buttons) {
         c.frame = CGRectMake(inset + w * c.tag, inset, w, h);
         UIView *iv = [c viewWithTag:1001], *l = [c viewWithTag:1002];
-        iv.frame = CGRectMake(0, 6, w, 24);
-        l.frame = CGRectMake(0, 31, w, 14);
+        iv.frame = CGRectMake(0, 4, w, 24);
+        l.frame = CGRectMake(0, 29, w, 14);
     }
     self.highlight.frame = CGRectMake(inset + w * self.selectedIndex + 2, inset, w - 4, h);
     self.highlight.layer.cornerRadius = h / 2;

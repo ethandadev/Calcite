@@ -297,6 +297,8 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
         // Hints go through SDL's API, not the environment: Minecraft sets some hints itself and SDL
         // refuses (and Minecraft aborts) when an environment variable already owns that hint.
         CalciteSDL_preseedHints();
+        // UIKit's SDL reads the Vulkan loader path from the environment (Minecraft never sets this one).
+        setenv("SDL_VULKAN_LIBRARY", [NSString stringWithFormat:@"%@/Frameworks341/libMoltenVK.dylib", bundlePath].UTF8String, 1);
         setenv("CALCITE_LWJGL34", "1", 1);
     }
     NSString *librariesPath = [NSString stringWithFormat:@"%@/%@", bundlePath, lwjgl34 ? @"libs341" : @"libs"];

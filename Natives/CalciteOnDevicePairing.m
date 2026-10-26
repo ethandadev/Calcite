@@ -17,6 +17,7 @@
 @property(nonatomic, weak) UIViewController *presenter;
 @property(nonatomic) UIAlertController *alert;
 @property(nonatomic) BOOL finished;
+@property(nonatomic) int retries;
 @end
 
 static CalciteOnDevicePairing *current; // one session at a time
@@ -37,6 +38,37 @@ static void pinShown(const char *msg, void *ctx) {
 }
 #endif
 
+#ifdef HAS_PAIRING
+static void bonjourReply(DNSServiceRef ref, DNSServiceFlags flags, DNSServiceErrorType err, const char *name,
+                         const char *type, const char *domain, void *ctx);
+static void registerService(CalciteOnDevicePairing *p) {
+    if (p.finished || !p.session) return;
+    CalcitePairing *session = p.session;
+    TXTRecordRef txtRef;
+    uint8_t txtBuf[1300];
+    TXTRecordCreate(&txtRef, sizeof(txtBuf), txtBuf);
+    for (size_t i = 0; i < calcite_pairing_txt_count(session); i++) {
+        const char *k = calcite_pairing_txt_key(session, i), *v = calcite_pairing_txt_value(session, i);
+        if (!k || !v) continue;
+        TXTRecordSetValue(&txtRef, k, (uint8_t)MIN(strlen(v), 255), v);
+    }
+    const char *svcName = calcite_pairing_service_name(session);
+    uint16_t port = calcite_pairing_port(session);
+    DNSServiceRef ref = NULL;
+    DNSServiceErrorType rc = DNSServiceRegister(&ref, 0, kDNSServiceInterfaceIndexAny, svcName,
+        "_remotepairing-pairable-host._tcp", NULL, NULL, htons(port),
+        TXTRecordGetLength(&txtRef), TXTRecordGetBytesPtr(&txtRef), bonjourReply, (__bridge void *)p);
+    TXTRecordDeallocate(&txtRef);
+    NSLog(@"[Pairing] DNSServiceRegister (try %d) returned %d", (int)p.retries, (int)rc);
+    if (rc == kDNSServiceErr_NoError) {
+        p.bonjour = ref;
+        DNSServiceSetDispatchQueue(ref, dispatch_get_main_queue());
+    } else {
+        showDialog(@"Couldn't advertise", [NSString stringWithFormat:@"Bonjour error %d. Allow Local Network for Calcite in Settings > Privacy & Security > Local Network.", (int)rc]);
+    }
+}
+#endif
+
 @implementation CalciteOnDevicePairing
 
 #ifdef HAS_PAIRING
@@ -46,11 +78,18 @@ static void bonjourReply(DNSServiceRef ref, DNSServiceFlags flags, DNSServiceErr
     NSLog(@"[Pairing] Bonjour register reply: err=%d name=%s type=%s domain=%s", (int)err, name ?: "", type ?: "", domain ?: "");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (err == kDNSServiceErr_NoError) {
+            self.retries = 0;
             self.alert.title = @"Ready to pair";
             self.alert.message = @"On this iPhone open Settings > Privacy & Security > Developer Mode and choose \"Calcite\" from the computers list.";
-        } else {
+        } else if (self.retries < 25 && !self.finished) {
+            // mDNSResponder sometimes drops the registration right after accepting it; the listener is
+            // still open, so just register again.
+            self.retries++;
+            if (self.bonjour) { DNSServiceRefDeallocate(self.bonjour); self.bonjour = NULL; }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ registerService(self); });
+        } else if (!self.finished) {
             self.alert.title = @"Couldn't advertise";
-            self.alert.message = [NSString stringWithFormat:@"Bonjour error %d.\n\nIf the Local Network prompt appeared, allow it. Otherwise open Settings > Privacy & Security > Local Network and turn on Calcite, then try again.", (int)err];
+            self.alert.message = [NSString stringWithFormat:@"Bonjour error %d after %d tries.\n\nMake sure Local Network is on for Calcite in Settings, then try again.", (int)err, (int)self.retries];
         }
     });
 }
@@ -81,32 +120,8 @@ static void bonjourReply(DNSServiceRef ref, DNSServiceFlags flags, DNSServiceErr
     p.presenter = presenter;
     current = p;
 
-    // TXT record via the C API so we get exact errors for bad keys/values.
-    TXTRecordRef txtRef;
-    uint8_t txtBuf[1300];
-    TXTRecordCreate(&txtRef, sizeof(txtBuf), txtBuf);
-    for (size_t i = 0; i < calcite_pairing_txt_count(session); i++) {
-        const char *k = calcite_pairing_txt_key(session, i), *v = calcite_pairing_txt_value(session, i);
-        if (!k || !v) continue;
-        DNSServiceErrorType te = TXTRecordSetValue(&txtRef, k, (uint8_t)MIN(strlen(v), 255), v);
-        NSLog(@"[Pairing] TXT %s (%zu bytes) -> %d", k, strlen(v), (int)te);
-    }
-    const char *svcName = calcite_pairing_service_name(session);
-    uint16_t port = calcite_pairing_port(session);
-    NSLog(@"[Pairing] publishing %s on port %d (TXT %d bytes)", svcName, (int)port, (int)TXTRecordGetLength(&txtRef));
-    DNSServiceErrorType rc = DNSServiceRegister(&p->_bonjour, 0, kDNSServiceInterfaceIndexAny, svcName,
-        "_remotepairing-pairable-host._tcp", NULL, NULL, htons(port),
-        TXTRecordGetLength(&txtRef), TXTRecordGetBytesPtr(&txtRef), bonjourReply, (__bridge void *)p);
-    TXTRecordDeallocate(&txtRef);
-    NSLog(@"[Pairing] DNSServiceRegister returned %d", (int)rc);
-    if (rc == kDNSServiceErr_NoError) {
-        DNSServiceSetDispatchQueue(p.bonjour, dispatch_get_main_queue());
-    } else {
-        showDialog(@"Couldn't advertise", [NSString stringWithFormat:@"Bonjour error %d. Allow Local Network for Calcite in Settings > Privacy & Security > Local Network.", (int)rc]);
-        calcite_pairing_free(session);
-        current = nil;
-        return;
-    }
+    registerService(p);
+    if (!p.bonjour) { calcite_pairing_free(session); current = nil; return; }
 
     p.alert = [UIAlertController alertControllerWithTitle:@"Pair this iPhone"
         message:@"Open Settings > Privacy & Security > Developer Mode on this iPhone and choose \"Calcite\" from the list of computers. A code will appear here.\n\nAllow Local Network access if asked."
@@ -124,7 +139,7 @@ static void bonjourReply(DNSServiceRef ref, DNSServiceFlags flags, DNSServiceErr
         if (bytes) calcite_pairing_bytes_free(bytes, len);
         if (error) calcite_pairing_string_free(error);
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (p.bonjour) { DNSServiceRefDeallocate(p.bonjour); p.bonjour = NULL; }
+            p.finished = YES; if (p.bonjour) { DNSServiceRefDeallocate(p.bonjour); p.bonjour = NULL; }
             calcite_pairing_free(p.session);
             p.session = NULL;
             current = nil;
