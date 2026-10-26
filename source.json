@@ -13,6 +13,13 @@
       "tintColor": "2BB3A3",
       "versions": [
         {
+          "version": "0.15.4",
+          "date": "2026-10-26",
+          "localizedDescription": "Tab bar aligned with the Play bar, consistent titles, MoltenVK 1.4.2 via SDL env, more resilient pairing advertisement.",
+          "downloadURL": "https://github.com/ethandadev/Calcite/releases/download/v0.15.4/Calcite.ipa",
+          "size": 212849069
+        },
+        {
           "version": "0.15.3",
           "date": "2026-10-25",
           "localizedDescription": "Fixes launch crash in 0.15.2 (tab bar attachment).",
