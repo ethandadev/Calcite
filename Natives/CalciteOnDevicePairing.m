@@ -129,6 +129,9 @@ static void bonjourReply(DNSServiceRef ref, DNSServiceFlags flags, DNSServiceErr
     [p.alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *a) {
         calcite_pairing_cancel(p.session);
     }]];
+    [p.alert addAction:[UIAlertAction actionWithTitle:@"Open Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+        [UIApplication.sharedApplication openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
+    }]];
     [presenter presentViewController:p.alert animated:YES completion:nil];
 
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
